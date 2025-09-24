@@ -20,6 +20,19 @@ app.get('/api/songs', async (req, res) => {
     }
 });
 
+app.get('/api/songs/:id', async (req, res) => {
+    try {
+        const song = await Song.findByPk(req.params.id);
+        if (song) {
+            res.json(song);
+        } else {
+            res.status(404).send("해당 노래를 찾을 수 없습니다.");
+        }
+    } catch (error) {
+        res.status(500).send("서버에서 오류가 발생했습니다.");
+    }
+});
+
 // 홈페이지('/')로 접속하면 index.html 파일을 보내주는 설정
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
