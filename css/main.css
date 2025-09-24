@@ -22,6 +22,7 @@ body {
 }
 
 /* 프로필 헤더 */
+/* 프로필 헤더 */
 .profile-header {
     display: flex;
     align-items: center;
@@ -29,25 +30,39 @@ body {
 }
 
 .profile-picture {
-    width: 100px; /* 프로필 사진 크기 조절 */
-    height: 100px;
-    border-radius: 50%; /* 원형으로 만듦 */
+    width: 150px;   /* 크기를 150px로 키움 */
+    height: 150px;
+    border-radius: 50%;
     object-fit: cover;
-    margin-right: 20px;
-    border: 3px solid #2ecc71; /* 테두리 색 */
+    margin-right: 30px;
+    /* border 속성 제거 */
+}
+
+.header-text-content {
+    flex-grow: 1;
+    text-align: center; /* <-- 모든 텍스트를 가운데 정렬 */
 }
 
 .header-text-content h1 {
-    margin: 0;
-    font-size: 2.2em;
-    color: #3498db;
+    margin: 0 0 10px 0;
+    font-size: 2.5em;
+    color: #f1c40f;
+    font-weight: 300;
+}
+
+.header-text-content hr {
+    border: 0;
+    height: 1px;
+    background-color: #555;
+    margin: 10px auto; /* 가운데 정렬을 위해 auto 추가 */
+    width: 80%; /* 선 길이 조절 */
 }
 
 .intro-text {
     color: #bbb;
     font-size: 1.1em;
+    margin: 10px 0 0 0;
 }
-
 .section-divider {
     border: 0;
     height: 1px;
