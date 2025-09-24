@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Space V2</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div class="container">
+        <div class="profile-header">
+            <img src="images/profile.jpg" alt="프로필 사진" class="profile-picture">
+            <div class="header-text-content">
+                <h1>Tommy's Music Space</h1>
+                <p class="intro-text">V2: Interactive Music Library</p>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <table class="song-table">
+            <thead>
+                <tr>
+                    <th data-sort="title">노래 제목</th>
+                    <th data-sort="genre">장르</th>
+                    <th data-sort="composer">작사/작곡</th>
+                    <th data-sort="artist">가수</th>
+                    <th data-sort="date">발매일</th>
+                    <th>가사보기</th>
+                    <th>재생</th>
+                </tr>
+            </thead>
+            <tbody id="song-table-body">
+                </tbody>
+        </table>
+    </div>
+
+    <audio id="music-player" controls></audio>
+    
+    <div style="text-align: center; margin-top: 50px; margin-bottom: 20px;">
+        <a href="admin.html">관리자 페이지로 이동</a>
+    </div>
+
+    <div id="lyrics-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <h3 id="modal-song-title"></h3>
+            <pre id="modal-lyrics-content"></pre>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+    
+</body>
+</html>
