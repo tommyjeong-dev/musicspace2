@@ -109,6 +109,86 @@ app.delete('/api/songs/:id', async (req, res) => {
         res.status(500).send("노래를 삭제하는 중 서버에서 오류가 발생했습니다.");
     }
 });
+// --- 플레이리스트 API ---
+
+// GET /api/playlists : 모든 플레이리스트 목록을 가져옵니다.
+app.get('/api/playlists', async (req, res) => {
+    try {
+        const playlists = await Playlist.findAll();
+        res.json(playlists);
+    } catch (error) {
+        console.error("플레이리스트 목록 조회 오류:", error);
+        res.status(500).send("플레이리스트 목록 조회 중 오류 발생");
+    }
+});
+
+// POST /api/playlists : 새 플레이리스트를 생성합니다.
+app.post('/api/playlists', async (req, res) => {
+    try {
+        const { name } = req.body;
+        if (!name) {
+            return res.status(400).send("플레이리스트 이름이 필요합니다.");
+        }
+        const newPlaylist = await Playlist.create({ name });
+        res.status(201).json(newPlaylist);
+    } catch (error) {
+        console.error("플레이리스트 생성 오류:", error);
+        res.status(500).send("플레이리스트 생성 중 오류 발생");
+    }
+});
+
+// GET /api/playlists/:id : 특정 플레이리스트와 수록곡 정보를 가져옵니다.
+app.get('/api/playlists/:id', async (req, res) => {
+    try {
+        const playlist = await Playlist.findByPk(req.params.id, {
+            include: Song // 관계 설정된 Song 모델을 포함하여 조회
+        });
+        if (playlist) {
+            res.json(playlist);
+        } else {
+            res.status(404).send("플레이리스트를 찾을 수 없습니다.");
+        }
+    } catch (error) {
+        console.error("특정 플레이리스트 조회 오류:", error);
+        res.status(500).send("특정 플레이리스트 조회 중 오류 발생");
+    }
+});
+
+
+// POST /api/playlists/:id/songs : 특정 플레이리스트에 노래를 추가합니다.
+app.post('/api/playlists/:id/songs', async (req, res) => {
+    try {
+        const playlist = await Playlist.findByPk(req.params.id);
+        const song = await Song.findByPk(req.body.songId);
+        if (!playlist || !song) {
+            return res.status(404).send("플레이리스트 또는 노래를 찾을 수 없습니다.");
+        }
+        await playlist.addSong(song); // 관계 메서드로 노래 추가
+        res.status(200).json(song);
+    } catch (error) {
+        console.error("플레이리스트에 노래 추가 오류:", error);
+        res.status(500).send("플레이리스트에 노래 추가 중 오류 발생");
+    }
+});
+
+// DELETE /api/playlists/:playlistId/songs/:songId : 특정 플레이리스트에서 노래를 삭제합니다.
+app.delete('/api/playlists/:playlistId/songs/:songId', async (req, res) => {
+    try {
+        const { playlistId, songId } = req.params;
+        const playlist = await Playlist.findByPk(playlistId);
+        const song = await Song.findByPk(songId);
+        if (!playlist || !song) {
+            return res.status(404).send("플레이리스트 또는 노래를 찾을 수 없습니다.");
+        }
+        await playlist.removeSong(song); // 관계 메서드로 노래 삭제
+        res.status(200).send("노래가 삭제되었습니다.");
+    } catch (error) {
+        console.error("플레이리스트에서 노래 삭제 오류:", error);
+        res.status(500).send("플레이리스트에서 노래 삭제 중 오류 발생");
+    }
+});
+
+
 
 // --- 서버 시작 및 초기 데이터 입력 ---
 app.listen(PORT, async () => {

@@ -274,3 +274,24 @@ a:hover {
     box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); /* 은은한 그림자 효과 */
     outline: none; /* 기본 아웃라인 제거 */
 }
+/* 프로필 헤더의 플레이리스트 버튼 스타일 */
+/* 프로필 헤더의 플레이리스트 버튼 스타일 */
+.btn-playlist {
+    position: relative; /* 위치 조정을 위한 기준 설정 */
+    top: 70px; /* 위에서 20px만큼 아래로 내림 */
+    margin-left: auto;
+    align-self: center;
+    padding: 10px 20px;
+    background-color: #FFD1DC;
+    color: #333;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.btn-playlist:hover {
+    background-color: #FFB6C1; /* 살짝 더 진한 핑크색 */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
