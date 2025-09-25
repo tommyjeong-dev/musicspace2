@@ -1,5 +1,3 @@
-// js/main.js
-
 import { fetchAllSongs } from './api.js';
 import { renderSongTable } from './ui.js';
 
@@ -8,6 +6,7 @@ const songTableBody = document.getElementById('song-table-body');
 const player = document.getElementById('music-player');
 const modal = document.getElementById('lyrics-modal');
 const tableHeader = document.querySelector('.song-table thead');
+const searchInput = document.getElementById('search-input');
 
 let allSongs = [];
 let currentSort = {
@@ -15,16 +14,25 @@ let currentSort = {
     ascending: true
 };
 
-// --- 핵심 함수 ---
-function sortAndRenderSongs() {
-    allSongs.sort((a, b) => {
+// --- 핵심 렌더링 함수 ---
+function updateView() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const filteredSongs = allSongs.filter(song => {
+        return song.title.toLowerCase().includes(searchTerm) ||
+               (song.artist && song.artist.toLowerCase().includes(searchTerm)) ||
+               (song.composer && song.composer.toLowerCase().includes(searchTerm)) ||
+               (song.genre && song.genre.toLowerCase().includes(searchTerm));
+    });
+
+    filteredSongs.sort((a, b) => {
         let valA = a[currentSort.column] || '';
         let valB = b[currentSort.column] || '';
         if (valA < valB) return currentSort.ascending ? -1 : 1;
         if (valA > valB) return currentSort.ascending ? 1 : -1;
         return 0;
     });
-    renderSongTable(allSongs, songTableBody);
+
+    renderSongTable(filteredSongs, songTableBody);
     updateTableHeaderSortUI();
 }
 
@@ -44,16 +52,16 @@ function updateTableHeaderSortUI() {
 function setupEventListeners() {
     songTableBody.addEventListener('click', async (event) => {
         const target = event.target;
+
         if (target.matches('.btn-play')) {
             const src = target.dataset.src;
             const playingRow = document.querySelector('tr.playing');
-
-            if(playingRow) playingRow.classList.remove('playing');
-            
+            if (playingRow) playingRow.classList.remove('playing');
             target.closest('tr').classList.add('playing');
             player.src = src;
             player.play();
         }
+
         if (target.matches('.btn-lyrics')) {
             const songId = target.dataset.songId;
             try {
@@ -84,7 +92,11 @@ function setupEventListeners() {
             currentSort.column = sortColumn;
             currentSort.ascending = true;
         }
-        sortAndRenderSongs();
+        updateView();
+    });
+
+    searchInput.addEventListener('input', () => {
+        updateView();
     });
 }
 
@@ -92,7 +104,7 @@ function setupEventListeners() {
 async function init() {
     allSongs = await fetchAllSongs();
     setupEventListeners();
-    sortAndRenderSongs();
+    updateView();
 }
 
 init();

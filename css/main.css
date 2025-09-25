@@ -86,12 +86,17 @@ body {
 .song-table th {
     background-color: #444;
     color: #3498db;
-    cursor: pointer; /* 정렬 가능한 컬럼은 커서 변경 */
+    text-align: center;
+}
+
+/* 정렬 가능한 헤더에만 마우스 포인터와 호버 효과 적용 */
+.song-table th[data-sort] {
+    cursor: pointer;
     transition: background-color 0.2s;
 }
 
-.song-table th:hover {
-    background-color: #555;
+.song-table th[data-sort]:hover {
+    background-color: #5a5a5a;
 }
 
 .song-table th.active { /* 정렬된 컬럼 표시 */
@@ -234,4 +239,38 @@ a:hover {
 
 .song-table th[data-direction="desc"]::after {
     content: " ▼";
+}
+/* 검색창 스타일 */
+.search-container {
+    margin-bottom: 20px;
+    position: relative; /* 아이콘 위치 지정을 위한 기준 */
+}
+
+/* 돋보기 아이콘 스타일 */
+.search-container::before {
+    content: '🔍'; /* 돋보기 이모지 */
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.6;
+}
+
+#search-input {
+    width: 100%;
+    padding: 12px 15px 12px 40px; /* 왼쪽 패딩을 늘려 아이콘 공간 확보 */
+    background-color: #2c2c2c;
+    border: 1px solid #555;
+    border-radius: 25px; /* 모서리를 둥글게 */
+    color: white;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: all 0.2s ease-in-out; /* 부드러운 전환 효과 */
+}
+
+/* 검색창을 클릭했을 때(focus) 효과 */
+#search-input:focus {
+    border-color: #f1c40f; /* 테두리 색상 변경 */
+    box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); /* 은은한 그림자 효과 */
+    outline: none; /* 기본 아웃라인 제거 */
 }
