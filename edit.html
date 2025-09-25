@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>노래 수정 - Music Space V2</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/form.css"> </head>
+<body>
+    <div class="container">
+        <h1>노래 정보 수정</h1>
+        <form id="edit-song-form">
+            <input type="text" id="title" name="title" placeholder="노래 제목" required>
+            <input type="text" id="artist" name="artist" placeholder="아티스트">
+            <input type="text" id="composer" name="composer" placeholder="작곡가">
+            <input type="text" id="date" name="date" placeholder="발매일 (예: 2025.01.01)">
+            <input type="text" id="genre" name="genre" placeholder="장르 (예: Ballad)">
+            <textarea id="lyrics" name="lyrics" placeholder="가사를 입력하세요..." rows="8"></textarea>
+            
+            <button type="submit">저장하기</button>
+        </form>
+    </div>
+
+    <div class="home-link-container">
+        <a href="admin.html">관리자 페이지로 돌아가기</a>
+    </div>
+
+    <script src="js/edit.js"></script>
+</body>
+</html>
