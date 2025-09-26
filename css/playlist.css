@@ -124,3 +124,37 @@
     color: #888; /* 연한 회색으로 변경 */
     font-size: 0.9em;
 }
+/* 플레이리스트 아이템 레이아웃 */
+.playlist-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #555;
+}
+
+.playlist-list li:last-child {
+    border-bottom: none;
+}
+
+.playlist-item-link {
+    flex-grow: 1;
+}
+
+.playlist-list li a {
+    border-bottom: none; /* 개별 링크의 밑줄은 제거 */
+}
+
+/* 수정/삭제 버튼 */
+.playlist-buttons button {
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 1.1em;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.playlist-buttons button:hover {
+    color: #f1c40f;
+}

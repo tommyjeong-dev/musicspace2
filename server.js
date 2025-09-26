@@ -188,6 +188,40 @@ app.delete('/api/playlists/:playlistId/songs/:songId', async (req, res) => {
     }
 });
 
+// PUT /api/playlists/:id : 특정 플레이리스트의 이름을 수정합니다.
+app.put('/api/playlists/:id', async (req, res) => {
+    try {
+        const { name } = req.body;
+        const [updatedRows] = await Playlist.update({ name }, {
+            where: { id: req.params.id }
+        });
+
+        if (updatedRows > 0) {
+            res.status(200).send("플레이리스트 이름이 수정되었습니다.");
+        } else {
+            res.status(404).send("플레이리스트를 찾을 수 없습니다.");
+        }
+    } catch (error) {
+        res.status(500).send("플레이리스트 이름 수정 중 오류 발생");
+    }
+});
+
+// DELETE /api/playlists/:id : 특정 플레이리스트를 삭제합니다.
+app.delete('/api/playlists/:id', async (req, res) => {
+    try {
+        const deleted = await Playlist.destroy({
+            where: { id: req.params.id }
+        });
+        if (deleted) {
+            res.status(204).send();
+        } else {
+            res.status(404).send("플레이리스트를 찾을 수 없습니다.");
+        }
+    } catch (error) {
+        res.status(500).send("플레이리스트 삭제 중 오류 발생");
+    }
+});
+
 
 
 // --- 서버 시작 및 초기 데이터 입력 ---
