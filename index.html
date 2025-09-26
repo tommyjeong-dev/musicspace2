@@ -16,15 +16,12 @@
             </div>
             <a href="playlist.html" class="btn-playlist">My Playlists</a>
         </div>
-
         <hr class="section-divider">
-
         <div class="search-container">
             <input type="text" id="search-input" placeholder="노래 제목, 아티스트, 장르 등으로 검색">
         </div>
-
         <table class="song-table">
-             <thead>
+            <thead>
                 <tr>
                     <th data-sort="title">노래 제목</th>
                     <th data-sort="genre">장르</th>
@@ -33,26 +30,28 @@
                     <th data-sort="date">발매일</th>
                     <th>가사보기</th>
                     <th>재생</th>
-                    <th>PL에 추가</th> </tr>
+                    <th>PL에 추가</th>
+                </tr>
             </thead>
-            <tbody id="song-table-body">
-                </tbody>
+            <tbody id="song-table-body"></tbody>
         </table>
     </div>
-
     <audio id="music-player" controls></audio>
-    <div class="home-link-container" style="text-align: center; margin-top: 50px; margin-bottom: 20px;">
+    <div style="text-align: center; margin-top: 50px; margin-bottom: 20px;">
         <a href="admin.html">관리자 페이지로 이동</a>
     </div>
-
     <div id="lyrics-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <h3 id="modal-song-title"></h3>
+            <pre id="modal-lyrics-content"></pre>
         </div>
+    </div>
     <div id="playlist-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn">&times;</button>
             <h3>플레이리스트에 추가</h3>
-            <ul id="modal-playlist-list" class="modal-playlist-list">
-                </ul>
+            <ul id="modal-playlist-list" class="modal-playlist-list"></ul>
         </div>
     </div>
     <script type="module" src="js/main.js"></script>

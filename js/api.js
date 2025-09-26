@@ -1,5 +1,3 @@
-// js/api.js
-
 export async function fetchAllSongs() {
     try {
         const response = await fetch('/api/songs');
