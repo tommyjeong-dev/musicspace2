@@ -14,7 +14,7 @@
                 <h1>Tommy's Music Space</h1>
                 <p class="intro-text">이곳은 Tommy의 음악을 나누는 공간입니다. 방문을 환영합니다!</p>
             </div>
-            <a href="playlist.html" class="btn btn-playlist">My Playlists</a>
+            <a href="playlist.html" class="btn-playlist">My Playlists</a>
         </div>
 
         <hr class="section-divider">
@@ -24,7 +24,7 @@
         </div>
 
         <table class="song-table">
-            <thead>
+             <thead>
                 <tr>
                     <th data-sort="title">노래 제목</th>
                     <th data-sort="genre">장르</th>
@@ -33,7 +33,7 @@
                     <th data-sort="date">발매일</th>
                     <th>가사보기</th>
                     <th>재생</th>
-                </tr>
+                    <th>PL에 추가</th> </tr>
             </thead>
             <tbody id="song-table-body">
                 </tbody>
@@ -41,19 +41,20 @@
     </div>
 
     <audio id="music-player" controls></audio>
-    
-    <div style="text-align: center; margin-top: 50px; margin-bottom: 20px;">
+    <div class="home-link-container" style="text-align: center; margin-top: 50px; margin-bottom: 20px;">
         <a href="admin.html">관리자 페이지로 이동</a>
     </div>
 
     <div id="lyrics-modal" class="modal-overlay">
+        </div>
+    <div id="playlist-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn">&times;</button>
-            <h3 id="modal-song-title"></h3>
-            <pre id="modal-lyrics-content"></pre>
+            <h3>플레이리스트에 추가</h3>
+            <ul id="modal-playlist-list" class="modal-playlist-list">
+                </ul>
         </div>
     </div>
-
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

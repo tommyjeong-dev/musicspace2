@@ -1,0 +1,126 @@
+/* 페이지 제목 */
+.page-title {
+    color: #f1c40f;
+    text-align: center;
+    font-weight: 300;
+}
+
+.page-subtitle {
+    text-align: center;
+    color: #bbb;
+    margin-top: -10px;
+}
+
+/* 2단 레이아웃 */
+.app-layout {
+    display: flex;
+    gap: 20px;
+}
+
+.sidebar {
+    width: 300px;
+    flex-shrink: 0;
+}
+
+.main-content {
+    flex-grow: 1;
+    background-color: #2c2c2c;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+/* 플레이리스트 목록 */
+.playlist-container {
+    background-color: #3e3e3e;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.playlist-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.playlist-list li a {
+    display: block;
+    padding: 12px;
+    border-radius: 5px;
+    color: #eee;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #555;
+}
+
+.playlist-list li:last-child a {
+    border-bottom: none;
+}
+
+.playlist-list li a:hover,
+.playlist-list li a.active {
+    background-color: #555;
+    color: #f1c40f;
+}
+
+/* 새 플레이리스트 입력란 */
+.playlist-new {
+    display: flex;
+}
+
+.playlist-new input {
+    flex-grow: 1;
+    border: 1px solid #555;
+    background-color: #2c2c2c;
+    color: white;
+    padding: 10px;
+    border-radius: 5px 0 0 5px;
+    outline: none;
+}
+
+.playlist-new button {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 0 18px;
+    font-size: 1.5em;
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+}
+
+/* 수록곡 목록 */
+#selected-playlist-title {
+    color: #eee;
+    margin-top: 0;
+}
+
+.song-list {
+    list-style: none;
+    padding: 0;
+}
+
+.song-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #444;
+}
+
+.song-list .btn-delete {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+/* 하단 링크 스타일 */
+.home-link-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.home-link-container a {
+    color: #888; /* 연한 회색으로 변경 */
+    font-size: 0.9em;
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Playlists - Music Space V2</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/playlist.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">My Playlists</h1>
+        <p class="page-subtitle">플레이리스트를 만들고 관리하세요.</p>
+        
+        <hr class="section-divider">
+
+        <div class="app-layout">
+            <aside class="sidebar">
+                <div class="playlist-container">
+                    <ul id="playlist-list" class="playlist-list">
+                        </ul>
+                    <div class="playlist-new">
+                        <input type="text" id="new-playlist-name" placeholder="새 플레이리스트 이름...">
+                        <button id="create-playlist-btn">+</button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                    <ul id="song-list-in-playlist" class="song-list">
+                    </ul>
+            </main>
+        </div>
+    </div>
+
+    <div class="home-link-container">
+        <a href="index.html">메인 페이지로 돌아가기</a>
+    </div>
+
+    <script type="module" src="js/playlist.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 const express = require('express');
-const { Song, sequelize } = require('./database');
+const { Song, Playlist, sequelize } = require('./database'); // <-- Playlist 추가
 const path = require('path');
 const multer = require('multer');
 
