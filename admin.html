@@ -10,6 +10,15 @@
 </head>
 <body>
     <div class="container">
+        <!-- 사용자 정보 영역 (상단) -->
+        <div id="user-info" class="user-info-top" style="display: none;">
+            <span>안녕하세요, <span id="username"></span>님!</span>
+            <div class="header-buttons">
+                <a href="index.html" class="btn-main">메인 페이지로 돌아가기</a>
+                <button id="logout-btn" class="btn-logout">로그아웃</button>
+            </div>
+        </div>
+        
         <h1>관리자 페이지</h1>
         <p>노래를 추가, 수정, 삭제할 수 있습니다.</p>
 
@@ -45,9 +54,7 @@
     </div>
 
     <div class="home-link-container">
-        <a href="index.html">메인 페이지로 돌아가기</a> | 
         <a href="login.html" id="login-link">로그인</a>
-        <button id="logout-btn" style="display: none;">로그아웃</button>
     </div>
 
     <script src="js/admin.js"></script>

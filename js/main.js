@@ -286,11 +286,11 @@ async function logout() {
 async function init() {
     console.log('메인 페이지 초기화 시작');
     
-    // 먼저 인증 상태 확인
-    await checkAuthStatus();
-    
-    // 노래 데이터 로드
+    // 노래 데이터 로드 (사용자 권한에 따라 공개/전체 노래)
     allSongs = await fetchAllSongs();
+    
+    // 인증 상태 확인 및 UI 업데이트
+    await checkAuthStatus();
     
     // 이벤트 리스너 설정
     setupEventListeners();

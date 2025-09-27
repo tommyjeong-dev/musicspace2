@@ -61,3 +61,19 @@ form button:hover {
     background-color: #555;
     color: white;
 }
+
+/* 하단 링크 스타일 */
+.home-link-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.home-link-container a {
+    color: #888;
+    font-size: 0.9em;
+    text-decoration: none;
+}
+
+.home-link-container a:hover {
+    color: #2ecc71;
+}

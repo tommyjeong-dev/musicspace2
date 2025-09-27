@@ -182,6 +182,26 @@ app.get('/api/songs', async (req, res) => {
     }
 });
 
+// GET /api/songs/main : 로그인한 사용자용 메인 페이지 노래 목록 (공개 노래 + 본인 비공개 노래)
+app.get('/api/songs/main', isAuthenticated, async (req, res) => {
+    try {
+        const { Op } = require('sequelize');
+        const songs = await Song.findAll({
+            where: {
+                [Op.or]: [
+                    { isPublic: true }, // 모든 공개 노래
+                    { UserId: req.user.id } // 본인의 모든 노래 (공개 + 비공개)
+                ]
+            },
+            order: [['createdAt', 'DESC']]
+        });
+        res.json(songs);
+    } catch (error) {
+        console.error("메인 페이지 노래 목록 로딩 오류:", error);
+        res.status(500).send("서버에서 오류가 발생했습니다.");
+    }
+});
+
 // GET /api/songs/my : 현재 사용자의 모든 노래 목록을 가져옵니다.
 app.get('/api/songs/my', isAuthenticated, async (req, res) => {
     try {

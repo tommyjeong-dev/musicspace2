@@ -18,11 +18,53 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!songId) {
         alert('잘못된 접근입니다.');
-        window.location.href = 'admin.html';
+        // 사용자 권한에 따라 다른 페이지로 리다이렉트
+        try {
+            const userResponse = await fetch('/api/user', {
+                credentials: 'include'
+            });
+            
+            if (userResponse.ok) {
+                const userData = await userResponse.json();
+                if (userData.user.isAdmin) {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'admin.html'; // 일반 사용자도 admin.html로 (나의 노래 관리)
+                }
+            } else {
+                window.location.href = 'index.html'; // 로그인되지 않은 경우 메인 페이지로
+            }
+        } catch (error) {
+            console.error('사용자 정보 확인 오류:', error);
+            window.location.href = 'index.html'; // 기본값
+        }
         return;
     }
 
-    // --- 2. 페이지 로딩 시 기존 데이터 불러오기 ---
+    // --- 2. 사용자 인증 상태 확인 및 하단 링크 설정 ---
+    try {
+        const userResponse = await fetch('/api/user', {
+            credentials: 'include'
+        });
+        
+        if (userResponse.ok) {
+            const userData = await userResponse.json();
+            const homeLink = document.querySelector('.home-link-container a');
+            
+            if (homeLink) {
+                if (userData.user.isAdmin) {
+                    homeLink.textContent = '관리자 페이지로 돌아가기';
+                } else {
+                    homeLink.textContent = '나의 노래 관리하기';
+                }
+                console.log('하단 링크 텍스트 설정:', homeLink.textContent);
+            }
+        }
+    } catch (error) {
+        console.error('사용자 정보 확인 오류:', error);
+    }
+
+    // --- 3. 페이지 로딩 시 기존 데이터 불러오기 ---
     try {
         console.log('노래 데이터 로딩 시작, ID:', songId);
         const response = await fetch(`/api/songs/${songId}`, {
@@ -91,7 +133,27 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const result = await response.json();
                 console.log('수정 성공:', result);
                 alert('성공적으로 수정되었습니다.');
-                window.location.href = 'admin.html'; // 관리자 페이지로 복귀
+                
+                // 사용자 권한에 따라 다른 페이지로 리다이렉트
+                try {
+                    const userResponse = await fetch('/api/user', {
+                        credentials: 'include'
+                    });
+                    
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        if (userData.user.isAdmin) {
+                            window.location.href = 'admin.html'; // 관리자 페이지로 복귀
+                        } else {
+                            window.location.href = 'admin.html'; // 일반 사용자도 admin.html로 (나의 노래 관리)
+                        }
+                    } else {
+                        window.location.href = 'admin.html'; // 기본값
+                    }
+                } catch (error) {
+                    console.error('사용자 정보 확인 오류:', error);
+                    window.location.href = 'admin.html'; // 기본값
+                }
             } else {
                 const errorText = await response.text();
                 console.error('수정 실패:', response.status, errorText);
