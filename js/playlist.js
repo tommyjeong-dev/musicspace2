@@ -13,9 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const songSearchInput = document.getElementById('song-search-input');
     const searchSongsBtn = document.getElementById('search-songs-btn');
     const availableSongsList = document.getElementById('available-songs-list');
+    const musicPlayer = document.getElementById('music-player');
 
     let activePlaylistId = null;
     let allSongs = []; // 모든 노래 데이터
+    let currentPlaylistSongs = []; // 현재 플레이리스트의 노래들
+    let currentPlayIndex = 0; // 현재 재생 중인 노래 인덱스
+    let isPlayingAll = false; // 전체 재생 모드 여부
 
     // --- 2. 핵심 로직 함수 ---
 
@@ -46,6 +50,7 @@ async function fetchAndRenderPlaylists() {
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'playlist-buttons';
             buttonsContainer.innerHTML = `
+                <button class="btn-play-playlist" data-id="${playlist.id}" title="전체 재생">▶️</button>
                 <button class="btn-edit-playlist" data-id="${playlist.id}" title="이름 수정">✏️</button>
                 <button class="btn-delete-playlist" data-id="${playlist.id}" title="플레이리스트 삭제">🗑️</button>
             `;
@@ -75,8 +80,14 @@ async function fetchAndRenderPlaylists() {
         playlist.Songs.forEach(song => {
             const listItem = document.createElement('li');
             listItem.innerHTML = `
-                <span>${song.title} - ${song.artist}</span>
-                <button class="btn-delete" data-song-id="${song.id}">삭제</button>
+                <div class="song-info">
+                    <span class="song-title" data-src="${song.src}">${song.title}</span>
+                    <span class="song-artist">${song.artist || '알 수 없음'}</span>
+                </div>
+                <div class="song-actions">
+                    <button class="btn-play" data-src="${song.src}">재생</button>
+                    <button class="btn-delete" data-song-id="${song.id}">삭제</button>
+                </div>
             `;
             songListInPlaylistEl.appendChild(listItem);
         });
@@ -143,6 +154,13 @@ async function fetchAndRenderPlaylists() {
             event.preventDefault();
             await selectPlaylist(target.dataset.id);
         }
+        
+        // 플레이리스트 전체 재생 버튼 클릭 시
+        if (target.matches('.btn-play-playlist')) {
+            event.preventDefault();
+            const playlistId = target.dataset.id;
+            await playAllPlaylist(playlistId);
+        }
 
         // 플레이리스트 삭제 버튼 클릭 시
         if (target.matches('.btn-delete-playlist')) {
@@ -191,6 +209,27 @@ async function fetchAndRenderPlaylists() {
 
     /** 수록곡 목록에서 삭제 버튼 클릭 이벤트 */
     songListInPlaylistEl.addEventListener('click', async (event) => {
+        // 재생 버튼 클릭
+        if (event.target.matches('.btn-play')) {
+            const src = event.target.dataset.src;
+            const playingRow = document.querySelector('li.playing');
+            if (playingRow) playingRow.classList.remove('playing');
+            event.target.closest('li').classList.add('playing');
+            musicPlayer.src = src;
+            musicPlayer.play();
+        }
+        
+        // 제목 클릭 (재생)
+        if (event.target.matches('.song-title')) {
+            const src = event.target.dataset.src;
+            const playingRow = document.querySelector('li.playing');
+            if (playingRow) playingRow.classList.remove('playing');
+            event.target.closest('li').classList.add('playing');
+            musicPlayer.src = src;
+            musicPlayer.play();
+        }
+        
+        // 삭제 버튼 클릭
         if (event.target.matches('.btn-delete')) {
             const songId = event.target.dataset.songId;
             if (!activePlaylistId) return;
@@ -243,6 +282,27 @@ async function fetchAndRenderPlaylists() {
     
     // 노래 추가 버튼 클릭 이벤트 (이벤트 위임)
     availableSongsList.addEventListener('click', async (e) => {
+        // 재생 버튼 클릭
+        if (e.target.matches('.btn-play')) {
+            const src = e.target.dataset.src;
+            const playingRow = document.querySelector('li.playing');
+            if (playingRow) playingRow.classList.remove('playing');
+            e.target.closest('li').classList.add('playing');
+            musicPlayer.src = src;
+            musicPlayer.play();
+        }
+        
+        // 제목 클릭 (재생)
+        if (e.target.matches('.song-title')) {
+            const src = e.target.dataset.src;
+            const playingRow = document.querySelector('li.playing');
+            if (playingRow) playingRow.classList.remove('playing');
+            e.target.closest('li').classList.add('playing');
+            musicPlayer.src = src;
+            musicPlayer.play();
+        }
+        
+        // 노래 추가 버튼 클릭
         if (e.target.classList.contains('add-to-playlist-btn')) {
             const songId = e.target.dataset.songId;
             const success = await addSongToPlaylist(songId, activePlaylistId);
@@ -337,12 +397,13 @@ async function fetchAndRenderPlaylists() {
             listItem.className = 'song-item';
             listItem.innerHTML = `
                 <div class="song-info">
-                    <div class="song-title">${song.title}</div>
+                    <div class="song-title" data-src="${song.src}">${song.title}</div>
                     <div class="song-details">
                         ${song.artist || '알 수 없음'} • ${song.genre || '알 수 없음'} • ${song.date || '알 수 없음'}
                     </div>
                 </div>
-                <div>
+                <div class="song-actions">
+                    <button class="btn-play" data-src="${song.src}">재생</button>
                     ${isAlreadyAdded 
                         ? '<span class="already-added">이미 추가됨</span>' 
                         : `<button class="add-to-playlist-btn" data-song-id="${song.id}">추가</button>`
@@ -417,6 +478,86 @@ async function fetchAndRenderPlaylists() {
         songSearchInput.value = '';
         availableSongsList.innerHTML = '';
     }
+    
+    /** 전체 플레이리스트 재생 함수 */
+    async function playAllPlaylist(playlistId) {
+        try {
+            const response = await fetch(`/api/playlists/${playlistId}`, {
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                alert('플레이리스트를 불러올 수 없습니다.');
+                return;
+            }
+            
+            const playlist = await response.json();
+            currentPlaylistSongs = playlist.Songs || [];
+            
+            if (currentPlaylistSongs.length === 0) {
+                alert('플레이리스트에 노래가 없습니다.');
+                return;
+            }
+            
+            // 전체 재생 모드 시작
+            isPlayingAll = true;
+            currentPlayIndex = 0;
+            
+            // 첫 번째 노래 재생
+            playCurrentSong();
+            
+            // 플레이리스트 선택 (UI 업데이트)
+            await selectPlaylist(playlistId);
+            
+        } catch (error) {
+            console.error('전체 재생 오류:', error);
+            alert('전체 재생 중 오류가 발생했습니다.');
+        }
+    }
+    
+    /** 현재 인덱스의 노래 재생 */
+    function playCurrentSong() {
+        if (currentPlayIndex >= currentPlaylistSongs.length) {
+            // 모든 노래 재생 완료
+            isPlayingAll = false;
+            currentPlayIndex = 0;
+            return;
+        }
+        
+        const song = currentPlaylistSongs[currentPlayIndex];
+        
+        // 이전 재생 중인 노래 하이라이트 해제
+        const playingRow = document.querySelector('li.playing');
+        if (playingRow) playingRow.classList.remove('playing');
+        
+        // 현재 재생 중인 노래 하이라이트
+        const songRows = document.querySelectorAll('#song-list-in-playlist li');
+        if (songRows[currentPlayIndex]) {
+            songRows[currentPlayIndex].classList.add('playing');
+        }
+        
+        // 음악 재생
+        musicPlayer.src = song.src;
+        musicPlayer.play();
+    }
+    
+    /** 다음 노래 재생 */
+    function playNextSong() {
+        if (!isPlayingAll) return;
+        
+        currentPlayIndex++;
+        playCurrentSong();
+    }
+    
+    /** 이전 노래 재생 */
+    function playPreviousSong() {
+        if (!isPlayingAll) return;
+        
+        if (currentPlayIndex > 0) {
+            currentPlayIndex--;
+            playCurrentSong();
+        }
+    }
 
     // --- 4. 초기 실행 ---
     async function init() {
@@ -432,6 +573,27 @@ async function fetchAndRenderPlaylists() {
             songListInPlaylistEl.innerHTML = '<li>왼쪽에서 새 플레이리스트를 먼저 생성해주세요.</li>';
         }
     }
+
+    // 음악 플레이어 이벤트 리스너
+    musicPlayer.addEventListener('ended', () => {
+        if (isPlayingAll) {
+            // 전체 재생 모드에서 현재 노래가 끝나면 다음 노래 재생
+            playNextSong();
+        }
+    });
+    
+    // 키보드 단축키 (선택사항)
+    document.addEventListener('keydown', (e) => {
+        if (isPlayingAll) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                playNextSong();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                playPreviousSong();
+            }
+        }
+    });
 
     init(); // 페이지 로딩 시 메인 함수 실행
 });

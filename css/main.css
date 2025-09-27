@@ -558,7 +558,9 @@ a:hover {
     cursor: pointer;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
-    min-width: 120px;
+    width: 180px;
+    height: 100px;
+    justify-content: center;
 }
 
 .menu-btn:hover {
@@ -838,4 +840,74 @@ tr.playing {
 
 tr.playing td {
     color: #f1c40f !important;
+}
+
+/* 새로운 플레이리스트 생성 섹션 스타일 */
+.new-playlist-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #444;
+}
+
+.new-playlist-section h4 {
+    color: #f1c40f;
+    margin: 0 0 15px 0;
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.new-playlist-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#new-playlist-name-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #555;
+    border-radius: 8px;
+    background-color: #444;
+    color: white;
+    font-size: 16px;
+}
+
+#new-playlist-name-input::placeholder {
+    color: #999;
+}
+
+.btn-create-playlist {
+    padding: 12px 20px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-create-playlist:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+.btn-create-playlist:disabled {
+    background: #7f8c8d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.existing-playlists-section h4 {
+    color: #f1c40f;
+    margin: 0 0 15px 0;
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+/* 모달 내용 높이 조정 */
+.modal-content {
+    max-height: 80vh;
+    overflow-y: auto;
 }

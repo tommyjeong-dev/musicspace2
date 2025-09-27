@@ -30,15 +30,15 @@
         <div class="main-menu">
             <button id="search-btn" class="menu-btn active">
                 <span class="menu-icon">🔍</span>
-                <span class="menu-text">검색</span>
+                <span class="menu-text">Search</span>
             </button>
             <button id="my-songs-btn" class="menu-btn">
                 <span class="menu-icon">🎵</span>
-                <span class="menu-text">나의 노래</span>
+                <span class="menu-text">My Songs</span>
             </button>
             <button id="my-playlists-btn" class="menu-btn">
                 <span class="menu-icon">📋</span>
-                <span class="menu-text">나의 플레이리스트</span>
+                <span class="menu-text">My Playlists</span>
             </button>
         </div>
 
@@ -46,7 +46,7 @@
         <div id="search-section" class="content-section active">
             <div class="search-container">
                 <div class="search-input-group">
-                    <input type="text" id="search-input" placeholder="노래 제목, 아티스트로 검색...">
+                    <input type="text" id="search-input" placeholder="노래 제목, 아티스트로 검색... (* 입력 시 모든 노래 표시)">
                     <select id="genre-select">
                         <option value="">모든 장르</option>
                         <!-- 장르 옵션들이 동적으로 로드됩니다 -->
@@ -141,7 +141,21 @@
         <div class="modal-content">
             <button class="close-btn">&times;</button>
             <h3>플레이리스트에 추가</h3>
-            <ul id="modal-playlist-list" class="modal-playlist-list"></ul>
+            
+            <!-- 새로운 플레이리스트 생성 섹션 -->
+            <div class="new-playlist-section">
+                <h4>새 플레이리스트 만들기</h4>
+                <div class="new-playlist-input-group">
+                    <input type="text" id="new-playlist-name-input" placeholder="새 플레이리스트 이름을 입력하세요...">
+                    <button id="create-and-add-btn" class="btn-create-playlist">생성 후 추가</button>
+                </div>
+            </div>
+            
+            <!-- 기존 플레이리스트 섹션 -->
+            <div class="existing-playlists-section">
+                <h4>기존 플레이리스트에 추가</h4>
+                <ul id="modal-playlist-list" class="modal-playlist-list"></ul>
+            </div>
         </div>
     </div>
 

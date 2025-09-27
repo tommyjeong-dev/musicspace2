@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Playlists - Music Space V2</title>
     <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/playlist.css">
 </head>
 <body>
@@ -17,6 +18,8 @@
         <div class="app-layout">
             <aside class="sidebar">
                 <div class="playlist-container">
+                    <h3 class="playlist-section-title">My Playlists</h3>
+                    <hr class="playlist-divider">
                     <ul id="playlist-list" class="playlist-list">
                         </ul>
                     <div class="playlist-new">
@@ -55,6 +58,9 @@
             </div>
         </div>
     </div>
+
+    <!-- 오디오 플레이어 -->
+    <audio id="music-player" controls></audio>
 
     <div class="home-link-container">
         <a href="index.html">메인 페이지로 돌아가기</a>
