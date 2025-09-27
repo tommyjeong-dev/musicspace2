@@ -537,13 +537,40 @@ app.listen(PORT, async () => {
     console.log(`서버가 http://localhost:${PORT} 에서 정상적으로 실행되었습니다.`);
     try {
         await sequelize.sync();
+        
+        // admin 사용자가 없으면 생성
+        let adminUser = await User.findOne({ where: { username: 'admin' } });
+        if (!adminUser) {
+            const bcrypt = require('bcryptjs');
+            const hashedPassword = await bcrypt.hash('admin123', 10);
+            adminUser = await User.create({
+                username: 'admin',
+                password: hashedPassword,
+                isAdmin: true
+            });
+            console.log("admin 사용자 생성 완료.");
+        }
+        
+        // testuser 사용자가 없으면 생성
+        let testUser = await User.findOne({ where: { username: 'testuser' } });
+        if (!testUser) {
+            const bcrypt = require('bcryptjs');
+            const hashedPassword = await bcrypt.hash('test123', 10);
+            testUser = await User.create({
+                username: 'testuser',
+                password: hashedPassword,
+                isAdmin: false
+            });
+            console.log("testuser 사용자 생성 완료.");
+        }
+        
         const count = await Song.count();
         if (count === 0) {
             console.log("데이터베이스가 비어있어 초기 데이터를 입력합니다...");
             await Song.bulkCreate([
-                 { title: "결국엔 괜찮아", date: "2024. 08. 15", artist: "Tommy", composer: "Tommy", genre: "Ballad", src: "music-library/tjmc-k/song-01.wav", lyrics: "가사 준비 중..." },
-                 { title: "스쳐본 사랑에 대한 질문", date: "2023. 11. 20", artist: "Tommy", composer: "Tommy", genre: "Rock", src: "music-library/tjmc-k/song-02.wav", lyrics: "가사 준비 중..." },
-                 { title: "날 사랑하지 않는 너", date: "2023. 05. 01", artist: "Tommy", composer: "Tommy", genre: "Pop", src: "music-library/tjmc-k/song-03.wav", lyrics: "가사 준비 중..." }
+                 { title: "결국엔 괜찮아", date: "2024. 08. 15", artist: "Tommy", composer: "Tommy", genre: "Ballad", src: "music-library/tjmc-k/song-01.wav", lyrics: "가사 준비 중...", UserId: adminUser.id, isPublic: true },
+                 { title: "스쳐본 사랑에 대한 질문", date: "2023. 11. 20", artist: "Tommy", composer: "Tommy", genre: "Rock", src: "music-library/tjmc-k/song-02.wav", lyrics: "가사 준비 중...", UserId: adminUser.id, isPublic: true },
+                 { title: "날 사랑하지 않는 너", date: "2023. 05. 01", artist: "Tommy", composer: "Tommy", genre: "Pop", src: "music-library/tjmc-k/song-03.wav", lyrics: "가사 준비 중...", UserId: adminUser.id, isPublic: true }
             ]);
             console.log("초기 데이터 입력 완료.");
         }

@@ -49,7 +49,11 @@ const Song = sequelize.define('Song', {
 
 // Playlist 모델
 const Playlist = sequelize.define('Playlist', {
-    name: { type: DataTypes.STRING, allowNull: false }
+    name: { type: DataTypes.STRING, allowNull: false },
+    UserId: { 
+        type: DataTypes.INTEGER, 
+        allowNull: false // 플레이리스트 소유자 정보
+    }
 });
 
 
