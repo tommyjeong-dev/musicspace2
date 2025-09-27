@@ -162,7 +162,7 @@ app.post('/api/logout', (req, res) => {
 // GET /api/user : 현재 사용자 정보
 app.get('/api/user', (req, res) => {
     if (req.isAuthenticated()) {
-        res.json({ user: { id: req.user.id, username: req.user.username } });
+        res.json({ user: { id: req.user.id, username: req.user.username, isAdmin: req.user.isAdmin } });
     } else {
         res.status(401).json({ message: '로그인이 필요합니다.' });
     }
@@ -218,16 +218,30 @@ app.get('/api/songs/:id', async (req, res) => {
     try {
         const song = await Song.findByPk(req.params.id);
         if (song) {
-            // 공개 노래이거나, 로그인한 사용자가 본인 노래인 경우만 접근 허용
-            if (song.isPublic || (req.isAuthenticated() && song.UserId === req.user.id)) {
+            console.log('노래 접근 요청:', {
+                songId: req.params.id,
+                isPublic: song.isPublic,
+                songUserId: song.UserId,
+                isAuthenticated: req.isAuthenticated(),
+                currentUserId: req.user ? req.user.id : null,
+                isAdmin: req.user ? req.user.isAdmin : null
+            });
+            
+            // 공개 노래이거나, 로그인한 사용자가 본인 노래이거나, 관리자인 경우 접근 허용
+            if (song.isPublic || 
+                (req.isAuthenticated() && song.UserId === req.user.id) || 
+                (req.isAuthenticated() && req.user.isAdmin)) {
+                console.log('접근 허용');
                 res.json(song);
             } else {
+                console.log('접근 거부');
                 res.status(403).send("접근 권한이 없습니다.");
             }
         } else {
             res.status(404).send("해당 노래를 찾을 수 없습니다.");
         }
     } catch (error) {
+        console.error('노래 접근 오류:', error);
         res.status(500).send("서버에서 오류가 발생했습니다.");
     }
 });

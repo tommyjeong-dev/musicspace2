@@ -31,8 +31,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (response.ok) {
                 showMessage('로그인 성공!', 'success');
+                console.log('로그인 성공:', data.user.username, '관리자:', data.user.isAdmin);
                 setTimeout(() => {
-                    window.location.href = '/';
+                    // 관리자인 경우 관리자 페이지로, 일반 사용자는 메인 페이지로
+                    if (data.user.isAdmin) {
+                        window.location.href = '/admin.html';
+                    } else {
+                        window.location.href = '/';
+                    }
                 }, 1000);
             } else {
                 showMessage(data.message || '로그인에 실패했습니다.', 'error');

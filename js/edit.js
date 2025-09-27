@@ -24,10 +24,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- 2. 페이지 로딩 시 기존 데이터 불러오기 ---
     try {
-        const response = await fetch(`/api/songs/${songId}`);
-        if (!response.ok) throw new Error('노래 정보를 불러오지 못했습니다.');
+        console.log('노래 데이터 로딩 시작, ID:', songId);
+        const response = await fetch(`/api/songs/${songId}`, {
+            credentials: 'include'
+        });
+        
+        console.log('데이터 로딩 응답 상태:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('데이터 로딩 실패:', response.status, errorText);
+            throw new Error(`노래 정보를 불러오지 못했습니다. (상태: ${response.status})`);
+        }
         
         const song = await response.json();
+        console.log('로딩된 노래 데이터:', song);
         
         // 폼에 기존 데이터 채워넣기
         titleInput.value = song.title;
@@ -37,10 +48,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         genreInput.value = song.genre || '';
         lyricsInput.value = song.lyrics || '';
         isPublicSelect.value = song.isPublic ? 'true' : 'false';
+        
+        console.log('폼 데이터 설정 완료');
 
     } catch (error) {
         console.error('데이터 로딩 오류:', error);
-        alert('데이터를 불러오는 중 오류가 발생했습니다.');
+        alert(`데이터를 불러오는 중 오류가 발생했습니다.\n오류: ${error.message}`);
     }
 
     // --- 3. 폼 제출(저장) 이벤트 처리 ---
@@ -60,6 +73,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             const updateEndpoint = isAdminMode ? `/api/songs/${songId}/admin` : `/api/songs/${songId}`;
+            console.log('수정 요청:', updateEndpoint, updatedData);
+            
             const response = await fetch(updateEndpoint, {
                 method: 'PUT',
                 headers: {
@@ -69,15 +84,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 credentials: 'include'
             });
 
+            console.log('응답 상태:', response.status);
+            console.log('응답 헤더:', response.headers);
+
             if (response.ok) {
+                const result = await response.json();
+                console.log('수정 성공:', result);
                 alert('성공적으로 수정되었습니다.');
                 window.location.href = 'admin.html'; // 관리자 페이지로 복귀
             } else {
-                alert('수정에 실패했습니다.');
+                const errorText = await response.text();
+                console.error('수정 실패:', response.status, errorText);
+                alert(`수정에 실패했습니다. (상태: ${response.status})\n오류: ${errorText}`);
             }
         } catch (error) {
             console.error('수정 중 오류:', error);
-            alert('서버와 통신 중 오류가 발생했습니다.');
+            alert(`서버와 통신 중 오류가 발생했습니다.\n오류: ${error.message}`);
         }
     });
 });

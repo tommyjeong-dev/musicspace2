@@ -6,6 +6,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const addSongForm = document.getElementById('add-song-form');
 
     // --- 2. 핵심 함수 ---
+    
+    // 사용자 권한에 따른 UI 텍스트 업데이트
+    function updateUITextForUser(isAdmin, username) {
+        const pageTitle = document.querySelector('h1');
+        const pageDescription = document.querySelector('p');
+        const sectionTitle = document.querySelector('.section-title');
+        
+        if (isAdmin) {
+            // 관리자인 경우
+            document.title = '관리자 페이지 - Music Space V2';
+            pageTitle.textContent = '관리자 페이지';
+            pageDescription.textContent = '모든 노래를 추가, 수정, 삭제할 수 있습니다.';
+            sectionTitle.textContent = '1. 새 노래 추가';
+        } else {
+            // 일반 사용자인 경우
+            document.title = '나의 노래 관리 - Music Space V2';
+            pageTitle.textContent = '나의 노래 관리';
+            pageDescription.textContent = `${username}님의 노래를 추가, 수정, 삭제할 수 있습니다.`;
+            sectionTitle.textContent = '1. 새 노래 추가';
+        }
+    }
+    
     async function fetchAndRenderSongs() {
         try {
             // 먼저 사용자 정보를 확인하여 관리자인지 체크
@@ -23,6 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const userData = await userResponse.json();
             const isAdmin = userData.user.isAdmin;
+            
+            // 사용자 권한에 따른 UI 텍스트 변경
+            updateUITextForUser(isAdmin, userData.user.username);
             
             // 관리자면 모든 노래, 일반 사용자면 본인 노래만 가져오기
             const apiEndpoint = isAdmin ? '/api/songs/admin' : '/api/songs/my';
@@ -135,9 +160,25 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (response.ok) {
                 const data = await response.json();
+                console.log('로그인 상태:', data.user.username, '관리자:', data.user.isAdmin);
+                
+                // 로그인된 상태
                 document.getElementById('login-link').style.display = 'none';
                 document.getElementById('logout-btn').style.display = 'inline-block';
+                
+                // 사용자 정보 표시 (선택사항)
+                const userInfo = document.createElement('span');
+                userInfo.textContent = `안녕하세요, ${data.user.username}님!`;
+                userInfo.style.marginRight = '10px';
+                userInfo.style.color = '#f1c40f';
+                
+                const homeLinkContainer = document.querySelector('.home-link-container');
+                homeLinkContainer.insertBefore(userInfo, homeLinkContainer.firstChild);
+                
             } else {
+                console.log('로그인되지 않은 상태');
+                
+                // 로그인되지 않은 상태
                 document.getElementById('login-link').style.display = 'inline-block';
                 document.getElementById('logout-btn').style.display = 'none';
             }
@@ -157,8 +198,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             if (response.ok) {
+                // UI 상태 업데이트
                 document.getElementById('login-link').style.display = 'inline-block';
                 document.getElementById('logout-btn').style.display = 'none';
+                
+                // 사용자 정보 제거
+                const userInfo = document.querySelector('.home-link-container span');
+                if (userInfo) {
+                    userInfo.remove();
+                }
+                
                 alert('로그아웃되었습니다.');
                 window.location.reload();
             } else {
