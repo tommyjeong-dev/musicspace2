@@ -212,12 +212,12 @@ document.addEventListener('DOMContentLoaded', () => {
         songListElement.addEventListener('click', (event) => {
             const target = event.target;
             if (target.matches('.btn-edit')) {
-                const songId = target.dataset.id;
+                const songId = target.dataset.songId || target.dataset.id;
                 const isAdmin = target.dataset.isAdmin === 'true';
                 window.location.href = `edit.html?id=${songId}&admin=${isAdmin}`;
             }
             if (target.matches('.btn-delete')) {
-                const songId = target.dataset.id;
+                const songId = target.dataset.songId || target.dataset.id;
                 const isAdmin = target.dataset.isAdmin === 'true';
                 if (confirm(`정말로 이 노래를 삭제하시겠습니까?`)) {
                     const deleteEndpoint = isAdmin ? `/api/songs/${songId}/admin` : `/api/songs/${songId}`;
@@ -396,8 +396,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="song-actions">
-                        <button class="btn-edit" data-song-id="${song.id}">수정</button>
-                        <button class="btn-delete" data-song-id="${song.id}">삭제</button>
+                        <button class="btn-edit" data-song-id="${song.id}" data-is-admin="true">수정</button>
+                        <button class="btn-delete" data-song-id="${song.id}" data-is-admin="true">삭제</button>
                     </div>
                 </div>
             `;

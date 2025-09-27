@@ -1,5 +1,6 @@
 const express = require('express');
 const { User, Song, Playlist, sequelize } = require('./database'); // <-- User, Playlist 추가
+const { Op } = require('sequelize');
 const path = require('path');
 const multer = require('multer');
 const session = require('express-session');
@@ -563,7 +564,7 @@ app.get('/api/admin/dashboard', isAuthenticated, isAdmin, async (req, res) => {
         const totalSongs = await Song.count();
         const totalPlaylists = await Playlist.count();
         const publicSongs = await Song.count({ where: { isPublic: true } });
-        const privateSongs = await Song.count({ where: { isAdmin: false } });
+        const privateSongs = await Song.count({ where: { isPublic: false } });
         const adminUsers = await User.count({ where: { isAdmin: true } });
 
         // 장르별 통계
@@ -574,7 +575,7 @@ app.get('/api/admin/dashboard', isAuthenticated, isAdmin, async (req, res) => {
             ],
             where: {
                 genre: {
-                    [sequelize.Op.ne]: null
+                    [Op.ne]: null
                 }
             },
             group: ['genre'],
