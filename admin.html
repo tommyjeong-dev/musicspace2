@@ -25,6 +25,15 @@
             <textarea id="lyrics" name="lyrics" placeholder="가사를 입력하세요..." rows="8"></textarea>
             <label for="songFile">음악 파일 선택:</label>
             <input type="file" id="songFile" name="songFile" accept="audio/*" required>
+            
+            <div class="privacy-setting">
+                <label for="isPublic">공개 설정:</label>
+                <select id="isPublic" name="isPublic" required>
+                    <option value="true">공개 - 모든 사용자가 볼 수 있음</option>
+                    <option value="false">비공개 - 나만 볼 수 있음</option>
+                </select>
+            </div>
+            
             <button type="submit">노래 추가하기</button>
         </form>
 
@@ -36,7 +45,9 @@
     </div>
 
     <div class="home-link-container">
-        <a href="index.html">메인 페이지로 돌아가기</a>
+        <a href="index.html">메인 페이지로 돌아가기</a> | 
+        <a href="login.html" id="login-link">로그인</a>
+        <button id="logout-btn" style="display: none;">로그아웃</button>
     </div>
 
     <script src="js/admin.js"></script>

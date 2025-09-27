@@ -17,6 +17,14 @@
             <input type="text" id="genre" name="genre" placeholder="장르 (예: Ballad)">
             <textarea id="lyrics" name="lyrics" placeholder="가사를 입력하세요..." rows="8"></textarea>
             
+            <div class="privacy-setting">
+                <label for="isPublic">공개 설정:</label>
+                <select id="isPublic" name="isPublic" required>
+                    <option value="true">공개 - 모든 사용자가 볼 수 있음</option>
+                    <option value="false">비공개 - 나만 볼 수 있음</option>
+                </select>
+            </div>
+            
             <button type="submit">저장하기</button>
         </form>
     </div>

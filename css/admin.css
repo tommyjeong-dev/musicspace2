@@ -56,3 +56,28 @@ h1, h2 {
     background-color: #e74c3c;
     color: white;
 }
+
+.privacy-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.privacy-badge.public {
+    background-color: #28a745;
+    color: white;
+}
+
+.privacy-badge.private {
+    background-color: #dc3545;
+    color: white;
+}
+
+.uploader-info {
+    color: #888;
+    font-size: 12px;
+    margin-left: 10px;
+    font-style: italic;
+}

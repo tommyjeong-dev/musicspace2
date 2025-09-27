@@ -9,10 +9,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dateInput = document.getElementById('date');
     const genreInput = document.getElementById('genre');
     const lyricsInput = document.getElementById('lyrics');
+    const isPublicSelect = document.getElementById('isPublic');
 
-    // URL에서 노래 ID 가져오기 (예: edit.html?id=4)
+    // URL에서 노래 ID와 관리자 모드 가져오기 (예: edit.html?id=4&admin=true)
     const urlParams = new URLSearchParams(window.location.search);
     const songId = urlParams.get('id');
+    const isAdminMode = urlParams.get('admin') === 'true';
 
     if (!songId) {
         alert('잘못된 접근입니다.');
@@ -34,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         dateInput.value = song.date || '';
         genreInput.value = song.genre || '';
         lyricsInput.value = song.lyrics || '';
+        isPublicSelect.value = song.isPublic ? 'true' : 'false';
 
     } catch (error) {
         console.error('데이터 로딩 오류:', error);
@@ -52,15 +55,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             date: dateInput.value,
             genre: genreInput.value,
             lyrics: lyricsInput.value,
+            isPublic: isPublicSelect.value
         };
 
         try {
-            const response = await fetch(`/api/songs/${songId}`, {
+            const updateEndpoint = isAdminMode ? `/api/songs/${songId}/admin` : `/api/songs/${songId}`;
+            const response = await fetch(updateEndpoint, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(updatedData)
+                body: JSON.stringify(updatedData),
+                credentials: 'include'
             });
 
             if (response.ok) {

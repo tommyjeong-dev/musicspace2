@@ -13,8 +13,15 @@
             <div class="header-text-content">
                 <h1>Tommy's Music Space</h1>
                 <p class="intro-text">이곳은 Tommy의 음악을 나누는 공간입니다. 방문을 환영합니다!</p>
+                <div id="user-info" style="display: none;">
+                    <p>안녕하세요, <span id="username"></span>님!</p>
+                </div>
             </div>
-            <a href="playlist.html" class="btn-playlist">My Playlists</a>
+            <div class="header-buttons">
+                <a href="playlist.html" class="btn-playlist">My Playlists</a>
+                <button id="logout-btn" class="btn-logout" style="display: none;">로그아웃</button>
+                <a href="login.html" id="login-link" class="btn-login">로그인</a>
+            </div>
         </div>
         <hr class="section-divider">
         <div class="search-container">
