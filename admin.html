@@ -15,6 +15,8 @@
             <span>안녕하세요, <span id="username"></span>님!</span>
             <div class="header-buttons">
                 <a href="index.html" class="btn-main">메인 페이지로 돌아가기</a>
+                <a href="admin-dashboard.html" class="btn-main">대시보드</a>
+                <a href="admin-users.html" class="btn-main">사용자 관리</a>
                 <button id="logout-btn" class="btn-logout">로그아웃</button>
             </div>
         </div>
@@ -62,6 +64,43 @@
         </div>
 
         <hr class="section-divider">
+
+        <!-- 고급 노래 관리 섹션 -->
+        <div class="advanced-song-management">
+            <div class="management-header">
+                <div class="search-and-filters">
+                    <input type="text" id="song-search-input" placeholder="노래 제목, 아티스트로 검색...">
+                    <select id="genre-filter">
+                        <option value="">모든 장르</option>
+                        <option value="Ballad">Ballad</option>
+                        <option value="Rock">Rock</option>
+                        <option value="Pop">Pop</option>
+                        <option value="Jazz">Jazz</option>
+                        <option value="Classical">Classical</option>
+                    </select>
+                    <select id="privacy-filter">
+                        <option value="">모든 공개 설정</option>
+                        <option value="true">공개</option>
+                        <option value="false">비공개</option>
+                    </select>
+                    <button id="search-songs-btn" class="btn-search">검색</button>
+                    <button id="clear-filters-btn" class="btn-clear">초기화</button>
+                </div>
+                
+                <div class="bulk-actions">
+                    <button id="select-all-btn" class="btn-select-all">전체 선택</button>
+                    <button id="bulk-delete-btn" class="btn-bulk-delete" disabled>선택 삭제</button>
+                    <button id="bulk-public-btn" class="btn-bulk-public" disabled>선택 항목 공개</button>
+                    <button id="bulk-private-btn" class="btn-bulk-private" disabled>선택 항목 비공개</button>
+                </div>
+            </div>
+            
+            <div class="song-stats">
+                <span id="total-songs">총 노래: 0</span>
+                <span id="selected-count">선택됨: 0</span>
+            </div>
+        </div>
+
         <ul id="song-management-list" class="song-list">
             </ul>
     </div>

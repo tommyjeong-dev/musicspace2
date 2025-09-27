@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Music Space V2</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/form.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/admin-dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- 사용자 정보 영역 (상단) -->
+        <div id="user-info" class="user-info-top" style="display: none;">
+            <span>안녕하세요, <span id="username"></span>님!</span>
+            <div class="header-buttons">
+                <a href="index.html" class="btn-main">메인 페이지로 돌아가기</a>
+                <a href="admin.html" class="btn-main">노래 관리</a>
+                <a href="admin-users.html" class="btn-main">사용자 관리</a>
+                <a href="admin-system.html" class="btn-main">시스템 관리</a>
+                <button id="logout-btn" class="btn-logout">로그아웃</button>
+            </div>
+        </div>
+        
+        <h1>Admin Dashboard</h1>
+        <p>시스템 전체 현황과 통계를 확인할 수 있습니다.</p>
+
+        <hr class="section-divider">
+
+        <!-- 개요 통계 카드들 -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="total-users">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎵</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="total-songs">0</div>
+                    <div class="stat-label">Total Songs</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="total-playlists">0</div>
+                    <div class="stat-label">Total Playlists</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔓</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="public-songs">0</div>
+                    <div class="stat-label">Public Songs</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 차트 섹션 -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3>Genre Distribution</h3>
+                <canvas id="genre-chart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>User Activity</h3>
+                <canvas id="user-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- 최근 활동 섹션 -->
+        <div class="recent-activity">
+            <h3>Recent Songs</h3>
+            <div class="activity-list" id="recent-songs-list">
+                <!-- 최근 노래 목록이 여기에 동적으로 로드됩니다 -->
+            </div>
+        </div>
+
+        <!-- 빠른 액션 섹션 -->
+        <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="admin.html" class="action-btn">
+                    <div class="action-icon">🎵</div>
+                    <div class="action-text">Manage Songs</div>
+                </a>
+                <a href="admin-users.html" class="action-btn">
+                    <div class="action-icon">👥</div>
+                    <div class="action-text">Manage Users</div>
+                </a>
+                <button class="action-btn" id="refresh-data-btn">
+                    <div class="action-icon">🔄</div>
+                    <div class="action-text">Refresh Data</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="home-link-container">
+        <a href="login.html" id="login-link">로그인</a>
+    </div>
+
+    <script src="js/admin-dashboard.js"></script>
+</body>
+</html>

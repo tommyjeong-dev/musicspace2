@@ -1,0 +1,282 @@
+/* 사용자 관리 페이지 전용 스타일 */
+
+/* 사용자 통계 */
+.user-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.user-stats span {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    color: #e8f4fd;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 사용자 테이블 */
+.users-table-container {
+    background: #3e3e3e;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #eee;
+}
+
+.users-table th {
+    background: #2c3e50;
+    color: #f1c40f;
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #34495e;
+}
+
+.users-table td {
+    padding: 12px;
+    border-bottom: 1px solid #555;
+    vertical-align: middle;
+}
+
+.users-table tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* 사용자 정보 셀 */
+.user-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #e8f4fd;
+}
+
+.user-id {
+    font-size: 0.8em;
+    color: #bbb;
+}
+
+/* 역할 배지 */
+.role-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-badge.admin {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+}
+
+.role-badge.user {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+/* 노래 수 표시 */
+.song-count {
+    background: rgba(52, 152, 219, 0.2);
+    color: #3498db;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+/* 가입일 */
+.join-date {
+    color: #bbb;
+    font-size: 0.9em;
+}
+
+/* 액션 버튼들 */
+.user-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-action {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-change-role {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-change-role:hover {
+    background: #e67e22;
+    transform: translateY(-1px);
+}
+
+.btn-delete-user {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-delete-user:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
+.btn-delete-user:disabled {
+    background: #7f8c8d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 역할 변경 드롭다운 */
+.role-select {
+    background: #2c3e50;
+    color: #e8f4fd;
+    border: 1px solid #34495e;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+
+.role-select:focus {
+    outline: none;
+    border-color: #f39c12;
+    box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.2);
+}
+
+/* 로딩 상태 */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #bbb;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #555;
+    border-top: 2px solid #f39c12;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 빈 상태 */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #bbb;
+}
+
+.empty-state h3 {
+    color: #e8f4fd;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .users-table-container {
+        padding: 10px;
+    }
+    
+    .users-table {
+        font-size: 0.9em;
+    }
+    
+    .users-table th,
+    .users-table td {
+        padding: 8px 6px;
+    }
+    
+    .user-actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .btn-action {
+        font-size: 0.7em;
+        padding: 4px 8px;
+    }
+    
+    .user-stats {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
+
+/* 헤더 버튼 스타일 개선 */
+.header-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.header-buttons .btn-main {
+    background: #3498db;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.header-buttons .btn-main:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}

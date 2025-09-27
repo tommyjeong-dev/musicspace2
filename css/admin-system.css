@@ -1,0 +1,338 @@
+/* 시스템 관리 페이지 전용 스타일 */
+
+/* 시스템 상태 섹션 */
+.system-status-section {
+    background: #3e3e3e;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.system-status-section h3 {
+    color: #e8f4fd;
+    margin: 0 0 20px 0;
+    font-size: 1.3em;
+    border-bottom: 2px solid #555;
+    padding-bottom: 10px;
+}
+
+.status-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.status-card {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.status-card:hover {
+    transform: translateY(-3px);
+}
+
+.status-icon {
+    font-size: 2.5em;
+    opacity: 0.8;
+}
+
+.status-content {
+    flex: 1;
+}
+
+.status-label {
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.status-value {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #e8f4fd;
+}
+
+/* 백업 관리 섹션 */
+.backup-section {
+    background: #3e3e3e;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.backup-section h3 {
+    color: #e8f4fd;
+    margin: 0 0 20px 0;
+    font-size: 1.3em;
+    border-bottom: 2px solid #555;
+    padding-bottom: 10px;
+}
+
+.backup-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.btn-backup,
+.btn-refresh {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-backup:hover {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-refresh {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.btn-refresh:hover {
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-backup:disabled,
+.btn-refresh:disabled {
+    background: #7f8c8d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-icon {
+    font-size: 1.1em;
+}
+
+.backup-status {
+    background: #2c2c2c;
+    border-radius: 8px;
+    padding: 15px;
+    border-left: 4px solid #3498db;
+}
+
+.backup-status.success {
+    border-left-color: #27ae60;
+    background: rgba(39, 174, 96, 0.1);
+}
+
+.backup-status.error {
+    border-left-color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.backup-status.loading {
+    border-left-color: #f39c12;
+    background: rgba(243, 156, 18, 0.1);
+}
+
+/* 로그 섹션 */
+.logs-section {
+    background: #3e3e3e;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.logs-section h3 {
+    color: #e8f4fd;
+    margin: 0 0 20px 0;
+    font-size: 1.3em;
+    border-bottom: 2px solid #555;
+    padding-bottom: 10px;
+}
+
+.logs-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.btn-load-logs,
+.btn-clear-logs {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-load-logs:hover {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    transform: translateY(-1px);
+}
+
+.btn-clear-logs {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.btn-clear-logs:hover {
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
+    transform: translateY(-1px);
+}
+
+.logs-container {
+    background: #1a1a1a;
+    border-radius: 8px;
+    border: 1px solid #555;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.logs-list {
+    padding: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.log-entry {
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+    color: #e8f4fd;
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}
+
+.log-timestamp {
+    color: #95a5a6;
+    font-size: 0.8em;
+    margin-right: 10px;
+}
+
+.log-content {
+    color: #e8f4fd;
+}
+
+.log-entry.error .log-content {
+    color: #e74c3c;
+}
+
+.log-entry.warning .log-content {
+    color: #f39c12;
+}
+
+.log-entry.info .log-content {
+    color: #3498db;
+}
+
+/* 로딩 상태 */
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #bbb;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #555;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 빈 상태 */
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #bbb;
+}
+
+.empty-state h4 {
+    color: #e8f4fd;
+    margin-bottom: 10px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .status-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .backup-controls,
+    .logs-controls {
+        flex-direction: column;
+    }
+    
+    .btn-backup,
+    .btn-refresh,
+    .btn-load-logs,
+    .btn-clear-logs {
+        justify-content: center;
+    }
+    
+    .status-card {
+        padding: 15px;
+    }
+    
+    .status-icon {
+        font-size: 2em;
+    }
+}
+
+/* 헤더 버튼 스타일 개선 */
+.header-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.header-buttons .btn-main {
+    background: #3498db;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.header-buttons .btn-main:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}

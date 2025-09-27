@@ -7,6 +7,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleAddFormBtn = document.getElementById('toggle-add-form-btn');
     const addFormContainer = document.getElementById('add-song-form-container');
     const cancelAddBtn = document.getElementById('cancel-add-btn');
+    
+    // 고급 노래 관리 변수들
+    const songSearchInput = document.getElementById('song-search-input');
+    const genreFilter = document.getElementById('genre-filter');
+    const privacyFilter = document.getElementById('privacy-filter');
+    const searchSongsBtn = document.getElementById('search-songs-btn');
+    const clearFiltersBtn = document.getElementById('clear-filters-btn');
+    const selectAllBtn = document.getElementById('select-all-btn');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+    const bulkPublicBtn = document.getElementById('bulk-public-btn');
+    const bulkPrivateBtn = document.getElementById('bulk-private-btn');
+    const totalSongsElement = document.getElementById('total-songs');
+    const selectedCountElement = document.getElementById('selected-count');
+    
+    let allSongs = []; // 모든 노래 데이터
+    let filteredSongs = []; // 필터링된 노래 데이터
+    let selectedSongs = new Set(); // 선택된 노래 ID들
 
     // --- 2. 핵심 함수 ---
     
@@ -108,36 +125,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (!response.ok) throw new Error('서버 응답 오류');
             
-            const songs = await response.json();
-            console.log('관리자 페이지 - 받은 노래 데이터:', songs);
-            console.log('총 노래 개수:', songs.length);
+            allSongs = await response.json();
+            console.log('관리자 페이지 - 받은 노래 데이터:', allSongs);
+            console.log('총 노래 개수:', allSongs.length);
             
-            songListElement.innerHTML = '';
-            songs.forEach(song => {
-                console.log('노래 렌더링:', song.title, '공개여부:', song.isPublic, '업로더:', song.User?.username);
-                const listItem = document.createElement('li');
-                listItem.className = 'song-item';
-                
-                // 관리자인 경우 업로더 정보도 표시
-                const uploaderInfo = isAdmin && song.User ? 
-                    `<span class="uploader-info">업로더: ${song.User.username}</span>` : '';
-                
-                listItem.innerHTML = `
-                    <div class="song-info">
-                        <span class="song-title">${song.title}</span>
-                        <span class="song-artist">${song.artist}</span>
-                        <span class="privacy-badge ${song.isPublic ? 'public' : 'private'}">
-                            ${song.isPublic ? '공개' : '비공개'}
-                        </span>
-                        ${uploaderInfo}
-                    </div>
-                    <div class="buttons">
-                        <button class="btn-edit" data-id="${song.id}" data-is-admin="${isAdmin}">수정</button>
-                        <button class="btn-delete" data-id="${song.id}" data-is-admin="${isAdmin}">삭제</button>
-                    </div>
-                `;
-                songListElement.appendChild(listItem);
-            });
+            filteredSongs = [...allSongs]; // 초기에는 모든 노래 표시
+            renderSongs();
+            updateStats();
         } catch (error) {
             console.error("노래 목록을 가져오는 데 실패했습니다:", error);
         }
@@ -349,4 +343,233 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cancelAddBtn) {
         cancelAddBtn.addEventListener('click', cancelAddForm);
     }
+
+    // --- 8. 고급 노래 관리 함수들 ---
+
+    /** 노래 검색 및 필터링 */
+    function filterSongs() {
+        const searchTerm = songSearchInput.value.toLowerCase();
+        const selectedGenre = genreFilter.value;
+        const selectedPrivacy = privacyFilter.value;
+
+        filteredSongs = allSongs.filter(song => {
+            // 텍스트 검색
+            const matchesSearch = !searchTerm || 
+                song.title.toLowerCase().includes(searchTerm) ||
+                song.artist.toLowerCase().includes(searchTerm) ||
+                song.composer.toLowerCase().includes(searchTerm);
+
+            // 장르 필터
+            const matchesGenre = !selectedGenre || song.genre === selectedGenre;
+
+            // 공개 설정 필터
+            const matchesPrivacy = !selectedPrivacy || song.isPublic.toString() === selectedPrivacy;
+
+            return matchesSearch && matchesGenre && matchesPrivacy;
+        });
+
+        renderSongs();
+        updateStats();
+    }
+
+    /** 노래 목록 렌더링 (체크박스 포함) */
+    function renderSongs() {
+        if (filteredSongs.length === 0) {
+            songListElement.innerHTML = '<li style="text-align: center; color: #bbb; padding: 40px;">검색 결과가 없습니다.</li>';
+            return;
+        }
+
+        songListElement.innerHTML = '';
+        filteredSongs.forEach(song => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <input type="checkbox" class="song-checkbox" data-song-id="${song.id}">
+                <div class="song-info">
+                    <div class="song-details">
+                        <div class="song-title">${song.title}</div>
+                        <div class="song-meta">
+                            <span>아티스트: ${song.artist || 'N/A'}</span>
+                            <span>장르: ${song.genre || 'N/A'}</span>
+                            <span>발매일: ${song.date || 'N/A'}</span>
+                            <span class="privacy-badge ${song.isPublic ? 'public' : 'private'}">${song.isPublic ? '공개' : '비공개'}</span>
+                            ${song.User ? `<span>업로더: ${song.User.username}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="song-actions">
+                        <button class="btn-edit" data-song-id="${song.id}">수정</button>
+                        <button class="btn-delete" data-song-id="${song.id}">삭제</button>
+                    </div>
+                </div>
+            `;
+            songListElement.appendChild(li);
+        });
+    }
+
+    /** 통계 업데이트 */
+    function updateStats() {
+        totalSongsElement.textContent = `총 노래: ${filteredSongs.length}`;
+        selectedCountElement.textContent = `선택됨: ${selectedSongs.size}`;
+        
+        // 대량 작업 버튼 활성화/비활성화
+        const hasSelection = selectedSongs.size > 0;
+        bulkDeleteBtn.disabled = !hasSelection;
+        bulkPublicBtn.disabled = !hasSelection;
+        bulkPrivateBtn.disabled = !hasSelection;
+    }
+
+    /** 전체 선택/해제 */
+    function toggleSelectAll() {
+        const checkboxes = document.querySelectorAll('.song-checkbox');
+        const allSelected = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allSelected;
+            const songId = parseInt(checkbox.dataset.songId);
+            if (!allSelected) {
+                selectedSongs.add(songId);
+            } else {
+                selectedSongs.delete(songId);
+            }
+        });
+        
+        updateStats();
+        selectAllBtn.textContent = allSelected ? '전체 선택' : '전체 해제';
+    }
+
+    /** 대량 삭제 */
+    async function bulkDeleteSongs() {
+        if (selectedSongs.size === 0) return;
+        
+        if (!confirm(`선택된 ${selectedSongs.size}개의 노래를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
+            return;
+        }
+
+        try {
+            const deletePromises = Array.from(selectedSongs).map(songId => 
+                fetch(`/api/songs/${songId}/admin`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                })
+            );
+
+            const results = await Promise.all(deletePromises);
+            const failed = results.filter(r => !r.ok).length;
+            
+            if (failed === 0) {
+                alert(`${selectedSongs.size}개의 노래가 성공적으로 삭제되었습니다.`);
+            } else {
+                alert(`${selectedSongs.size - failed}개의 노래가 삭제되었습니다. ${failed}개의 노래 삭제에 실패했습니다.`);
+            }
+            
+            selectedSongs.clear();
+            await fetchAndRenderSongs();
+            
+        } catch (error) {
+            console.error('대량 삭제 오류:', error);
+            alert('대량 삭제 중 오류가 발생했습니다.');
+        }
+    }
+
+    /** 대량 공개/비공개 변경 */
+    async function bulkChangePrivacy(isPublic) {
+        if (selectedSongs.size === 0) return;
+        
+        const action = isPublic ? '공개' : '비공개';
+        if (!confirm(`선택된 ${selectedSongs.size}개의 노래를 ${action}로 변경하시겠습니까?`)) {
+            return;
+        }
+
+        try {
+            const updatePromises = Array.from(selectedSongs).map(songId => 
+                fetch(`/api/songs/${songId}/admin`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ isPublic: isPublic }),
+                    credentials: 'include'
+                })
+            );
+
+            const results = await Promise.all(updatePromises);
+            const failed = results.filter(r => !r.ok).length;
+            
+            if (failed === 0) {
+                alert(`${selectedSongs.size}개의 노래가 성공적으로 ${action}로 변경되었습니다.`);
+            } else {
+                alert(`${selectedSongs.size - failed}개의 노래가 ${action}로 변경되었습니다. ${failed}개의 노래 변경에 실패했습니다.`);
+            }
+            
+            selectedSongs.clear();
+            await fetchAndRenderSongs();
+            
+        } catch (error) {
+            console.error('대량 변경 오류:', error);
+            alert('대량 변경 중 오류가 발생했습니다.');
+        }
+    }
+
+    /** 필터 초기화 */
+    function clearFilters() {
+        songSearchInput.value = '';
+        genreFilter.value = '';
+        privacyFilter.value = '';
+        selectedSongs.clear();
+        filterSongs();
+    }
+
+    // --- 9. 고급 노래 관리 이벤트 리스너 ---
+
+    // 검색 및 필터 이벤트
+    if (searchSongsBtn) {
+        searchSongsBtn.addEventListener('click', filterSongs);
+    }
+    
+    if (songSearchInput) {
+        songSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') filterSongs();
+        });
+    }
+    
+    if (genreFilter) {
+        genreFilter.addEventListener('change', filterSongs);
+    }
+    
+    if (privacyFilter) {
+        privacyFilter.addEventListener('change', filterSongs);
+    }
+    
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', clearFilters);
+    }
+
+    // 대량 작업 이벤트
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', toggleSelectAll);
+    }
+    
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', bulkDeleteSongs);
+    }
+    
+    if (bulkPublicBtn) {
+        bulkPublicBtn.addEventListener('click', () => bulkChangePrivacy(true));
+    }
+    
+    if (bulkPrivateBtn) {
+        bulkPrivateBtn.addEventListener('click', () => bulkChangePrivacy(false));
+    }
+
+    // 체크박스 선택 이벤트
+    songListElement.addEventListener('change', (event) => {
+        if (event.target.classList.contains('song-checkbox')) {
+            const songId = parseInt(event.target.dataset.songId);
+            if (event.target.checked) {
+                selectedSongs.add(songId);
+            } else {
+                selectedSongs.delete(songId);
+            }
+            updateStats();
+        }
+    });
 });

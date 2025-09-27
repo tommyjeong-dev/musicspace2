@@ -553,6 +553,318 @@ app.delete('/api/playlists/:id', isAuthenticated, async (req, res) => {
 
 
 
+// --- 관리자 대시보드 API ---
+
+// 대시보드 통계 조회 (관리자만)
+app.get('/api/admin/dashboard', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        // 전체 통계 조회
+        const totalUsers = await User.count();
+        const totalSongs = await Song.count();
+        const totalPlaylists = await Playlist.count();
+        const publicSongs = await Song.count({ where: { isPublic: true } });
+        const privateSongs = await Song.count({ where: { isAdmin: false } });
+        const adminUsers = await User.count({ where: { isAdmin: true } });
+
+        // 장르별 통계
+        const genreStats = await Song.findAll({
+            attributes: [
+                'genre',
+                [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+            ],
+            where: {
+                genre: {
+                    [sequelize.Op.ne]: null
+                }
+            },
+            group: ['genre'],
+            order: [[sequelize.fn('COUNT', sequelize.col('id')), 'DESC']]
+        });
+
+        // 최근 업로드된 노래 (최근 10개)
+        const recentSongs = await Song.findAll({
+            include: [{
+                model: User,
+                attributes: ['username']
+            }],
+            order: [['createdAt', 'DESC']],
+            limit: 10
+        });
+
+        // 사용자별 노래 수 통계
+        const userStats = await User.findAll({
+            attributes: [
+                'username',
+                [sequelize.fn('COUNT', sequelize.col('Songs.id')), 'songCount']
+            ],
+            include: [{
+                model: Song,
+                attributes: [],
+                required: false
+            }],
+            group: ['User.id', 'User.username'],
+            order: [[sequelize.fn('COUNT', sequelize.col('Songs.id')), 'DESC']]
+        });
+
+        res.json({
+            overview: {
+                totalUsers,
+                totalSongs,
+                totalPlaylists,
+                publicSongs,
+                privateSongs,
+                adminUsers
+            },
+            genreStats: genreStats.map(stat => ({
+                genre: stat.genre,
+                count: parseInt(stat.dataValues.count)
+            })),
+            recentSongs: recentSongs.map(song => ({
+                id: song.id,
+                title: song.title,
+                artist: song.artist,
+                genre: song.genre,
+                isPublic: song.isPublic,
+                createdAt: song.createdAt,
+                uploader: song.User ? song.User.username : 'Unknown'
+            })),
+            userStats: userStats.map(user => ({
+                username: user.username,
+                songCount: parseInt(user.dataValues.songCount)
+            }))
+        });
+    } catch (error) {
+        console.error("대시보드 통계 조회 오류:", error);
+        res.status(500).json({ message: "대시보드 통계 조회 중 오류 발생" });
+    }
+});
+
+// --- 시스템 관리 API (관리자 전용) ---
+
+// 데이터베이스 백업 (관리자만)
+app.get('/api/admin/backup', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const fs = require('fs').promises;
+        const path = require('path');
+        
+        // 현재 데이터베이스 파일 경로
+        const dbPath = path.join(__dirname, 'database.sqlite');
+        const backupPath = path.join(__dirname, 'backups', `backup_${Date.now()}.sqlite`);
+        
+        // 백업 디렉토리 생성
+        const backupDir = path.dirname(backupPath);
+        try {
+            await fs.mkdir(backupDir, { recursive: true });
+        } catch (error) {
+            // 디렉토리가 이미 존재하는 경우 무시
+        }
+        
+        // 데이터베이스 파일 복사
+        await fs.copyFile(dbPath, backupPath);
+        
+        res.json({
+            message: '데이터베이스 백업이 완료되었습니다.',
+            backupPath: backupPath,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error("데이터베이스 백업 오류:", error);
+        res.status(500).json({ message: "데이터베이스 백업 중 오류 발생" });
+    }
+});
+
+// 시스템 로그 조회 (관리자만)
+app.get('/api/admin/logs', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const fs = require('fs').promises;
+        const path = require('path');
+        
+        // 로그 파일 경로 (실제로는 로그 시스템을 구현해야 함)
+        const logPath = path.join(__dirname, 'logs', 'system.log');
+        
+        try {
+            const logContent = await fs.readFile(logPath, 'utf8');
+            const logs = logContent.split('\n').filter(line => line.trim()).slice(-100); // 최근 100줄
+            
+            res.json({
+                logs: logs.map((log, index) => ({
+                    id: index + 1,
+                    content: log,
+                    timestamp: new Date().toISOString() // 실제로는 로그에서 파싱해야 함
+                }))
+            });
+        } catch (error) {
+            // 로그 파일이 없는 경우 샘플 로그 반환
+            res.json({
+                logs: [
+                    {
+                        id: 1,
+                        content: `[${new Date().toISOString()}] 시스템 시작됨`,
+                        timestamp: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        content: `[${new Date().toISOString()}] 데이터베이스 연결 성공`,
+                        timestamp: new Date().toISOString()
+                    }
+                ]
+            });
+        }
+    } catch (error) {
+        console.error("시스템 로그 조회 오류:", error);
+        res.status(500).json({ message: "시스템 로그 조회 중 오류 발생" });
+    }
+});
+
+// 시스템 상태 조회 (관리자만)
+app.get('/api/admin/system-status', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const os = require('os');
+        const fs = require('fs').promises;
+        const path = require('path');
+        
+        // 메모리 사용량
+        const totalMemory = os.totalmem();
+        const freeMemory = os.freemem();
+        const usedMemory = totalMemory - freeMemory;
+        
+        // 디스크 사용량 (데이터베이스 파일 기준)
+        const dbPath = path.join(__dirname, 'database.sqlite');
+        let dbSize = 0;
+        try {
+            const stats = await fs.stat(dbPath);
+            dbSize = stats.size;
+        } catch (error) {
+            // 파일이 없는 경우
+        }
+        
+        // 서버 업타임
+        const uptime = process.uptime();
+        
+        res.json({
+            server: {
+                uptime: Math.floor(uptime),
+                nodeVersion: process.version,
+                platform: os.platform(),
+                arch: os.arch()
+            },
+            memory: {
+                total: totalMemory,
+                used: usedMemory,
+                free: freeMemory,
+                usagePercent: Math.round((usedMemory / totalMemory) * 100)
+            },
+            database: {
+                size: dbSize,
+                sizeFormatted: formatBytes(dbSize)
+            },
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error("시스템 상태 조회 오류:", error);
+        res.status(500).json({ message: "시스템 상태 조회 중 오류 발생" });
+    }
+});
+
+// 바이트를 읽기 쉬운 형태로 변환
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// --- 사용자 관리 API (관리자 전용) ---
+
+// 모든 사용자 목록 조회 (관리자만)
+app.get('/api/admin/users', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const users = await User.findAll({
+            attributes: ['id', 'username', 'isAdmin', 'createdAt'],
+            include: [{
+                model: Song,
+                attributes: ['id'],
+                required: false
+            }],
+            order: [['createdAt', 'DESC']]
+        });
+        
+        // 각 사용자의 노래 수 계산
+        const usersWithStats = users.map(user => ({
+            id: user.id,
+            username: user.username,
+            isAdmin: user.isAdmin,
+            createdAt: user.createdAt,
+            songCount: user.Songs ? user.Songs.length : 0
+        }));
+        
+        res.json(usersWithStats);
+    } catch (error) {
+        console.error("사용자 목록 조회 오류:", error);
+        res.status(500).json({ message: "사용자 목록 조회 중 오류 발생" });
+    }
+});
+
+// 사용자 권한 변경 (관리자만)
+app.put('/api/admin/users/:id/role', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { isAdmin } = req.body;
+        
+        // 자기 자신의 권한은 변경할 수 없음
+        if (parseInt(userId) === req.user.id) {
+            return res.status(400).json({ message: "자기 자신의 권한은 변경할 수 없습니다." });
+        }
+        
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+        }
+        
+        await user.update({ isAdmin: isAdmin });
+        
+        res.json({ 
+            message: `${user.username}님의 권한이 ${isAdmin ? '관리자' : '일반 사용자'}로 변경되었습니다.`,
+            user: {
+                id: user.id,
+                username: user.username,
+                isAdmin: user.isAdmin
+            }
+        });
+    } catch (error) {
+        console.error("사용자 권한 변경 오류:", error);
+        res.status(500).json({ message: "사용자 권한 변경 중 오류 발생" });
+    }
+});
+
+// 사용자 삭제 (관리자만)
+app.delete('/api/admin/users/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const userId = req.params.id;
+        
+        // 자기 자신은 삭제할 수 없음
+        if (parseInt(userId) === req.user.id) {
+            return res.status(400).json({ message: "자기 자신의 계정은 삭제할 수 없습니다." });
+        }
+        
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+        }
+        
+        // 사용자의 모든 노래와 플레이리스트도 함께 삭제
+        await Song.destroy({ where: { UserId: userId } });
+        await Playlist.destroy({ where: { UserId: userId } });
+        await user.destroy();
+        
+        res.json({ message: `${user.username}님의 계정이 삭제되었습니다.` });
+    } catch (error) {
+        console.error("사용자 삭제 오류:", error);
+        res.status(500).json({ message: "사용자 삭제 중 오류 발생" });
+    }
+});
+
 // --- 서버 시작 및 초기 데이터 입력 ---
 app.listen(PORT, async () => {
     console.log(`서버가 http://localhost:${PORT} 에서 정상적으로 실행되었습니다.`);

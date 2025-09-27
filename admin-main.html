@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Music Space V2</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/form.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/admin-main.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- 사이드바 네비게이션 -->
+        <nav class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Panel</h2>
+                <div id="user-info" class="user-info" style="display: none;">
+                    <div class="user-avatar">
+                        <span id="user-initial">A</span>
+                    </div>
+                    <div class="user-details">
+                        <div class="user-name" id="username">Admin</div>
+                        <div class="user-role">Administrator</div>
+                    </div>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-tab="dashboard">
+                    <a href="#" class="menu-link">
+                        <span class="menu-icon">📊</span>
+                        <span class="menu-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item" data-tab="songs">
+                    <a href="#" class="menu-link">
+                        <span class="menu-icon">🎵</span>
+                        <span class="menu-text">Song Management</span>
+                    </a>
+                </li>
+                <li class="menu-item" data-tab="users">
+                    <a href="#" class="menu-link">
+                        <span class="menu-icon">👥</span>
+                        <span class="menu-text">User Management</span>
+                    </a>
+                </li>
+                <li class="menu-item" data-tab="system">
+                    <a href="#" class="menu-link">
+                        <span class="menu-icon">⚙️</span>
+                        <span class="menu-text">System Management</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <a href="index.html" class="footer-link">
+                    <span class="menu-icon">🏠</span>
+                    <span class="menu-text">Main Page</span>
+                </a>
+                <button id="logout-btn" class="footer-link logout-btn">
+                    <span class="menu-icon">🚪</span>
+                    <span class="menu-text">Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <main class="admin-main">
+            <!-- 대시보드 탭 -->
+            <div id="dashboard-tab" class="tab-content active">
+                <div class="tab-header">
+                    <h1>Dashboard</h1>
+                    <p>시스템 전체 현황과 통계를 확인할 수 있습니다.</p>
+                </div>
+
+                <!-- 통계 카드들 -->
+                <div class="stats-overview">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-users">0</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎵</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-songs">0</div>
+                            <div class="stat-label">Total Songs</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-playlists">0</div>
+                            <div class="stat-label">Total Playlists</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔓</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="public-songs">0</div>
+                            <div class="stat-label">Public Songs</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 차트 섹션 -->
+                <div class="charts-section">
+                    <div class="chart-container">
+                        <h3>Genre Distribution</h3>
+                        <canvas id="genre-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>User Activity</h3>
+                        <canvas id="user-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 최근 활동 섹션 -->
+                <div class="recent-activity">
+                    <h3>Recent Songs</h3>
+                    <div class="activity-list" id="recent-songs-list">
+                        <!-- 최근 노래 목록이 여기에 동적으로 로드됩니다 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 노래 관리 탭 -->
+            <div id="songs-tab" class="tab-content">
+                <div class="tab-header">
+                    <h1>Song Management</h1>
+                    <p>노래를 추가, 수정, 삭제할 수 있습니다.</p>
+                </div>
+
+                <!-- 새 노래 추가 섹션 -->
+                <div class="add-song-section">
+                    <div class="section-header">
+                        <h2 class="section-title">My Song List</h2>
+                        <button id="toggle-add-form-btn" class="btn-primary">Add a New Song</button>
+                    </div>
+                    
+                    <!-- 새 노래 추가 폼 (기본적으로 숨김) -->
+                    <div id="add-song-form-container" class="add-form-container" style="display: none;">
+                        <h3>Add a New Song</h3>
+                        <form id="add-song-form" enctype="multipart/form-data">
+                            <label for="songFile">음악 파일 선택:</label>
+                            <input type="file" id="songFile" name="songFile" accept="audio/*" required>
+                            
+                            <input type="text" id="title" name="title" placeholder="노래 제목" required>
+                            <input type="text" id="artist" name="artist" placeholder="아티스트">
+                            <input type="text" id="composer" name="composer" placeholder="작곡가">
+                            <input type="text" id="genre" name="genre" placeholder="장르">
+                            <input type="text" id="date" name="date" placeholder="발매일 (YYYY.MM.DD 형식)" pattern="[0-9]{4}\.[0-9]{2}\.[0-9]{2}" title="YYYY.MM.DD 형식으로 입력하세요 (예: 2025.01.01)" required>
+                            <textarea id="lyrics" name="lyrics" placeholder="가사"></textarea>
+                            
+                            <div class="privacy-setting">
+                                <label for="isPublic">공개 설정:</label>
+                                <select id="isPublic" name="isPublic" required>
+                                    <option value="true">공개 - 모든 사용자가 볼 수 있음</option>
+                                    <option value="false">비공개 - 나만 볼 수 있음</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-buttons">
+                                <button type="submit">노래 추가하기</button>
+                                <button type="button" id="cancel-add-btn">취소</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 고급 노래 관리 섹션 -->
+                <div class="advanced-song-management">
+                    <div class="management-header">
+                        <div class="search-and-filters">
+                            <input type="text" id="song-search-input" placeholder="노래 제목, 아티스트로 검색...">
+                            <select id="genre-filter">
+                                <option value="">모든 장르</option>
+                                <option value="Ballad">Ballad</option>
+                                <option value="Rock">Rock</option>
+                                <option value="Pop">Pop</option>
+                                <option value="Jazz">Jazz</option>
+                                <option value="Classical">Classical</option>
+                            </select>
+                            <select id="privacy-filter">
+                                <option value="">모든 공개 설정</option>
+                                <option value="true">공개</option>
+                                <option value="false">비공개</option>
+                            </select>
+                            <button id="search-songs-btn" class="btn-search">검색</button>
+                            <button id="clear-filters-btn" class="btn-clear">초기화</button>
+                        </div>
+                        
+                        <div class="bulk-actions">
+                            <button id="select-all-btn" class="btn-select-all">전체 선택</button>
+                            <button id="bulk-delete-btn" class="btn-bulk-delete" disabled>선택 삭제</button>
+                            <button id="bulk-public-btn" class="btn-bulk-public" disabled>선택 항목 공개</button>
+                            <button id="bulk-private-btn" class="btn-bulk-private" disabled>선택 항목 비공개</button>
+                        </div>
+                    </div>
+                    
+                    <div class="song-stats">
+                        <span id="total-songs-count">총 노래: 0</span>
+                        <span id="selected-count">선택됨: 0</span>
+                    </div>
+                </div>
+
+                <ul id="song-management-list" class="song-list">
+                    <!-- 노래 목록이 여기에 동적으로 로드됩니다 -->
+                </ul>
+            </div>
+
+            <!-- 사용자 관리 탭 -->
+            <div id="users-tab" class="tab-content">
+                <div class="tab-header">
+                    <h1>User Management</h1>
+                    <p>사용자 계정을 관리하고 권한을 변경할 수 있습니다.</p>
+                </div>
+
+                <!-- 사용자 목록 섹션 -->
+                <div class="users-section">
+                    <div class="section-header">
+                        <h2 class="section-title">All Users</h2>
+                        <div class="user-stats">
+                            <span id="total-users-count">Total: 0</span>
+                            <span id="admin-count">Admins: 0</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 사용자 목록 테이블 -->
+                    <div class="users-table-container">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Songs</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-list">
+                                <!-- 사용자 목록이 여기에 동적으로 로드됩니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 시스템 관리 탭 -->
+            <div id="system-tab" class="tab-content">
+                <div class="tab-header">
+                    <h1>System Management</h1>
+                    <p>시스템 상태를 모니터링하고 백업을 관리할 수 있습니다.</p>
+                </div>
+
+                <!-- 시스템 상태 섹션 -->
+                <div class="system-status-section">
+                    <h3>System Status</h3>
+                    <div class="status-cards">
+                        <div class="status-card">
+                            <div class="status-icon">🖥️</div>
+                            <div class="status-content">
+                                <div class="status-label">Server Uptime</div>
+                                <div class="status-value" id="server-uptime">Loading...</div>
+                            </div>
+                        </div>
+                        <div class="status-card">
+                            <div class="status-icon">💾</div>
+                            <div class="status-content">
+                                <div class="status-label">Memory Usage</div>
+                                <div class="status-value" id="memory-usage">Loading...</div>
+                            </div>
+                        </div>
+                        <div class="status-card">
+                            <div class="status-icon">🗄️</div>
+                            <div class="status-content">
+                                <div class="status-label">Database Size</div>
+                                <div class="status-value" id="database-size">Loading...</div>
+                            </div>
+                        </div>
+                        <div class="status-card">
+                            <div class="status-icon">⚙️</div>
+                            <div class="status-content">
+                                <div class="status-label">Node Version</div>
+                                <div class="status-value" id="node-version">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 백업 관리 섹션 -->
+                <div class="backup-section">
+                    <h3>Database Backup</h3>
+                    <div class="backup-controls">
+                        <button id="create-backup-btn" class="btn-backup">
+                            <span class="btn-icon">💾</span>
+                            Create Backup
+                        </button>
+                        <button id="refresh-status-btn" class="btn-refresh">
+                            <span class="btn-icon">🔄</span>
+                            Refresh Status
+                        </button>
+                    </div>
+                    <div id="backup-status" class="backup-status">
+                        <!-- 백업 상태가 여기에 표시됩니다 -->
+                    </div>
+                </div>
+
+                <!-- 시스템 로그 섹션 -->
+                <div class="logs-section">
+                    <h3>System Logs</h3>
+                    <div class="logs-controls">
+                        <button id="load-logs-btn" class="btn-load-logs">
+                            <span class="btn-icon">📋</span>
+                            Load Logs
+                        </button>
+                        <button id="clear-logs-btn" class="btn-clear-logs">
+                            <span class="btn-icon">🗑️</span>
+                            Clear Display
+                        </button>
+                    </div>
+                    <div class="logs-container">
+                        <div id="logs-list" class="logs-list">
+                            <!-- 로그가 여기에 표시됩니다 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="home-link-container">
+        <a href="login.html" id="login-link">로그인</a>
+    </div>
+
+    <script src="js/admin-main.js"></script>
+</body>
+</html>

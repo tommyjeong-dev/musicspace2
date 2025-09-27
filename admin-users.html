@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Music Space V2</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/form.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/admin-users.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 사용자 정보 영역 (상단) -->
+        <div id="user-info" class="user-info-top" style="display: none;">
+            <span>안녕하세요, <span id="username"></span>님!</span>
+            <div class="header-buttons">
+                <a href="index.html" class="btn-main">메인 페이지로 돌아가기</a>
+                <a href="admin-dashboard.html" class="btn-main">대시보드</a>
+                <a href="admin.html" class="btn-main">노래 관리</a>
+                <button id="logout-btn" class="btn-logout">로그아웃</button>
+            </div>
+        </div>
+        
+        <h1>User Management</h1>
+        <p>사용자 계정을 관리하고 권한을 변경할 수 있습니다.</p>
+
+        <hr class="section-divider">
+
+        <!-- 사용자 목록 섹션 -->
+        <div class="users-section">
+            <div class="section-header">
+                <h2 class="section-title">All Users</h2>
+                <div class="user-stats">
+                    <span id="total-users">Total: 0</span>
+                    <span id="admin-count">Admins: 0</span>
+                </div>
+            </div>
+            
+            <!-- 사용자 목록 테이블 -->
+            <div class="users-table-container">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Songs</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-list">
+                        <!-- 사용자 목록이 여기에 동적으로 로드됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="home-link-container">
+        <a href="login.html" id="login-link">로그인</a>
+    </div>
+
+    <script src="js/admin-users.js"></script>
+</body>
+</html>

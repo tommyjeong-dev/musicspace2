@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Management - Music Space V2</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/form.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/admin-system.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 사용자 정보 영역 (상단) -->
+        <div id="user-info" class="user-info-top" style="display: none;">
+            <span>안녕하세요, <span id="username"></span>님!</span>
+            <div class="header-buttons">
+                <a href="index.html" class="btn-main">메인 페이지로 돌아가기</a>
+                <a href="admin-dashboard.html" class="btn-main">대시보드</a>
+                <a href="admin.html" class="btn-main">노래 관리</a>
+                <a href="admin-users.html" class="btn-main">사용자 관리</a>
+                <button id="logout-btn" class="btn-logout">로그아웃</button>
+            </div>
+        </div>
+        
+        <h1>System Management</h1>
+        <p>시스템 상태를 모니터링하고 백업을 관리할 수 있습니다.</p>
+
+        <hr class="section-divider">
+
+        <!-- 시스템 상태 섹션 -->
+        <div class="system-status-section">
+            <h3>System Status</h3>
+            <div class="status-cards">
+                <div class="status-card">
+                    <div class="status-icon">🖥️</div>
+                    <div class="status-content">
+                        <div class="status-label">Server Uptime</div>
+                        <div class="status-value" id="server-uptime">Loading...</div>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon">💾</div>
+                    <div class="status-content">
+                        <div class="status-label">Memory Usage</div>
+                        <div class="status-value" id="memory-usage">Loading...</div>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon">🗄️</div>
+                    <div class="status-content">
+                        <div class="status-label">Database Size</div>
+                        <div class="status-value" id="database-size">Loading...</div>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon">⚙️</div>
+                    <div class="status-content">
+                        <div class="status-label">Node Version</div>
+                        <div class="status-value" id="node-version">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 백업 관리 섹션 -->
+        <div class="backup-section">
+            <h3>Database Backup</h3>
+            <div class="backup-controls">
+                <button id="create-backup-btn" class="btn-backup">
+                    <span class="btn-icon">💾</span>
+                    Create Backup
+                </button>
+                <button id="refresh-status-btn" class="btn-refresh">
+                    <span class="btn-icon">🔄</span>
+                    Refresh Status
+                </button>
+            </div>
+            <div id="backup-status" class="backup-status">
+                <!-- 백업 상태가 여기에 표시됩니다 -->
+            </div>
+        </div>
+
+        <!-- 시스템 로그 섹션 -->
+        <div class="logs-section">
+            <h3>System Logs</h3>
+            <div class="logs-controls">
+                <button id="load-logs-btn" class="btn-load-logs">
+                    <span class="btn-icon">📋</span>
+                    Load Logs
+                </button>
+                <button id="clear-logs-btn" class="btn-clear-logs">
+                    <span class="btn-icon">🗑️</span>
+                    Clear Display
+                </button>
+            </div>
+            <div class="logs-container">
+                <div id="logs-list" class="logs-list">
+                    <!-- 로그가 여기에 표시됩니다 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="home-link-container">
+        <a href="login.html" id="login-link">로그인</a>
+    </div>
+
+    <script src="js/admin-system.js"></script>
+</body>
+</html>

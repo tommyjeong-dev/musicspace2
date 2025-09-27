@@ -111,6 +111,216 @@ h1, h2 {
     }
 }
 
+/* 고급 노래 관리 스타일 */
+.advanced-song-management {
+    background: #3e3e3e;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.search-and-filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-and-filters input,
+.search-and-filters select {
+    padding: 8px 12px;
+    border: 1px solid #555;
+    border-radius: 6px;
+    background: #2c2c2c;
+    color: #e8f4fd;
+    font-size: 0.9em;
+}
+
+.search-and-filters input:focus,
+.search-and-filters select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.btn-search,
+.btn-clear {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-search {
+    background: #3498db;
+    color: white;
+}
+
+.btn-search:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+.btn-clear {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-clear:hover {
+    background: #7f8c8d;
+    transform: translateY(-1px);
+}
+
+.bulk-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-select-all,
+.btn-bulk-delete,
+.btn-bulk-public,
+.btn-bulk-private {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-select-all {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-select-all:hover {
+    background: #e67e22;
+    transform: translateY(-1px);
+}
+
+.btn-bulk-delete {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-bulk-delete:hover:not(:disabled) {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
+.btn-bulk-public {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-bulk-public:hover:not(:disabled) {
+    background: #229954;
+    transform: translateY(-1px);
+}
+
+.btn-bulk-private {
+    background: #8e44ad;
+    color: white;
+}
+
+.btn-bulk-private:hover:not(:disabled) {
+    background: #7d3c98;
+    transform: translateY(-1px);
+}
+
+.btn-bulk-delete:disabled,
+.btn-bulk-public:disabled,
+.btn-bulk-private:disabled {
+    background: #7f8c8d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.song-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid #555;
+}
+
+.song-stats span {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    color: #e8f4fd;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 노래 목록에 체크박스 추가 */
+.song-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    border-bottom: 1px solid #555;
+    transition: background-color 0.3s ease;
+}
+
+.song-list li:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.song-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #3498db;
+}
+
+.song-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.song-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.song-title {
+    font-weight: 600;
+    color: #e8f4fd;
+    font-size: 1.1em;
+}
+
+.song-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.9em;
+    color: #bbb;
+}
+
+.song-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .section-header {
@@ -124,6 +334,35 @@ h1, h2 {
     
     .form-buttons {
         flex-direction: column;
+    }
+    
+    .management-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-and-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .bulk-actions {
+        justify-content: center;
+    }
+    
+    .song-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .song-info {
+        width: 100%;
+    }
+    
+    .song-actions {
+        width: 100%;
+        justify-content: flex-end;
     }
 }
 
