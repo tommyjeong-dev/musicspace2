@@ -1,8 +1,20 @@
+/* 플레이리스트 페이지 전용 컨테이너 */
+.container {
+    max-width: none !important;
+    width: 95% !important;
+    margin: 10px auto !important;
+    padding: 20px !important;
+}
+
 /* 페이지 제목 */
 .page-title {
-    color: #f1c40f;
+    color: #e8f4fd;
     text-align: center;
     font-weight: 300;
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 2.5em;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .page-subtitle {
@@ -15,22 +27,30 @@
 .app-layout {
     display: flex;
     gap: 20px;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 80vh;
 }
 
 .sidebar {
-    width: 50%;
-    flex-shrink: 0;
+    flex: 1;
     background-color: #2c2c2c;
     padding: 20px;
     border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .main-content {
-    width: 50%;
-    flex-shrink: 0;
+    flex: 1;
     background-color: #2c2c2c;
     padding: 20px;
     border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 /* 플레이리스트 목록 */
@@ -38,15 +58,21 @@
     background-color: #3e3e3e;
     padding: 20px;
     border-radius: 5px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* 플레이리스트 섹션 제목 */
 .playlist-section-title {
-    color: #f1c40f;
+    color: #e8f4fd;
     margin: 0 0 15px 0;
-    font-size: 1.2em;
-    font-weight: 500;
+    font-size: 1.4em;
+    font-weight: 400;
     text-align: center;
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* 플레이리스트 구분선 */
@@ -61,6 +87,8 @@
     list-style: none;
     padding: 0;
     margin: 0 0 20px 0;
+    flex: 1;
+    overflow-y: auto;
 }
 
 .playlist-list li a {
@@ -117,6 +145,8 @@
 .song-list {
     list-style: none;
     padding: 0;
+    flex: 1;
+    overflow-y: auto;
 }
 
 .song-list li {
@@ -209,9 +239,13 @@
 }
 
 .playlist-header h3 {
-    color: #f1c40f;
+    color: #e8f4fd;
     margin: 0;
     font-size: 1.5em;
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .btn-add-song {

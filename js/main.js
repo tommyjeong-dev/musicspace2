@@ -210,7 +210,7 @@ function setupEventListeners() {
     
     // 버튼 클릭 이벤트
     addSongBtn.addEventListener('click', () => {
-        window.location.href = 'admin.html';
+        window.location.href = 'admin.html?openForm=true';
     });
     
     managePlaylistsBtn.addEventListener('click', () => {

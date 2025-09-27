@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. 전역 변수 ---
     const songListElement = document.getElementById('song-management-list');
     const addSongForm = document.getElementById('add-song-form');
+    const toggleAddFormBtn = document.getElementById('toggle-add-form-btn');
+    const addFormContainer = document.getElementById('add-song-form-container');
+    const cancelAddBtn = document.getElementById('cancel-add-btn');
 
     // --- 2. 핵심 함수 ---
     
@@ -65,13 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.title = '관리자 페이지 - Music Space V2';
             pageTitle.textContent = '관리자 페이지';
             pageDescription.textContent = '모든 노래를 추가, 수정, 삭제할 수 있습니다.';
-            sectionTitle.textContent = '1. 새 노래 추가';
+            sectionTitle.textContent = 'My Song List';
         } else {
             // 일반 사용자인 경우
             document.title = '나의 노래 관리 - Music Space V2';
             pageTitle.textContent = '나의 노래 관리';
             pageDescription.textContent = `${username}님의 노래를 추가, 수정, 삭제할 수 있습니다.`;
-            sectionTitle.textContent = '1. 새 노래 추가';
+            sectionTitle.textContent = 'My Song List';
         }
     }
     
@@ -200,6 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('노래가 성공적으로 추가되었습니다!');
                     addSongForm.reset();
                     fetchAndRenderSongs();
+                    // 폼 닫기
+                    cancelAddForm();
                 } else {
                     alert('업로드에 실패했습니다.');
                 }
@@ -293,11 +298,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 6. 초기 실행 ---
+    // --- 6. 폼 토글 기능 ---
+    
+    /** 새 노래 추가 폼 토글 */
+    function toggleAddForm() {
+        if (addFormContainer.style.display === 'none' || addFormContainer.style.display === '') {
+            addFormContainer.style.display = 'block';
+            toggleAddFormBtn.textContent = 'Close Form';
+            toggleAddFormBtn.style.background = '#e74c3c';
+        } else {
+            addFormContainer.style.display = 'none';
+            toggleAddFormBtn.textContent = 'Add a New Song';
+            toggleAddFormBtn.style.background = '#3498db';
+            // 폼 리셋
+            addSongForm.reset();
+        }
+    }
+    
+    /** 폼 취소 */
+    function cancelAddForm() {
+        addFormContainer.style.display = 'none';
+        toggleAddFormBtn.textContent = 'Add a New Song';
+        toggleAddFormBtn.style.background = '#3498db';
+        addSongForm.reset();
+    }
+
+    // --- 7. 초기 실행 ---
     checkAuthStatus();
     fetchAndRenderSongs();
     setupEventListeners();
     
-    // 로그아웃 버튼 이벤트
+    // URL 파라미터 확인하여 폼 자동 열기
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openForm') === 'true') {
+        // 페이지 로딩 완료 후 폼 열기
+        setTimeout(() => {
+            toggleAddForm();
+        }, 500);
+    }
+    
+    // 이벤트 리스너들
     document.getElementById('logout-btn').addEventListener('click', logout);
+    
+    // 새 노래 추가 폼 토글 버튼
+    if (toggleAddFormBtn) {
+        toggleAddFormBtn.addEventListener('click', toggleAddForm);
+    }
+    
+    // 취소 버튼
+    if (cancelAddBtn) {
+        cancelAddBtn.addEventListener('click', cancelAddForm);
+    }
 });

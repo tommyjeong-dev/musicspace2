@@ -19,36 +19,49 @@
             </div>
         </div>
         
-        <h1>관리자 페이지</h1>
+        <h1>나의 노래 관리</h1>
         <p>노래를 추가, 수정, 삭제할 수 있습니다.</p>
 
         <hr class="section-divider">
 
-        <h2 class="section-title">1. 새 노래 추가</h2>
-        <form id="add-song-form" enctype="multipart/form-data">
-            <input type="text" id="title" name="title" placeholder="노래 제목" required>
-            <input type="text" id="artist" name="artist" placeholder="아티스트">
-            <input type="text" id="composer" name="composer" placeholder="작곡가">
-            <input type="text" id="date" name="date" placeholder="발매일 (YYYY.MM.DD 형식)" pattern="[0-9]{4}\.[0-9]{2}\.[0-9]{2}" title="YYYY.MM.DD 형식으로 입력하세요 (예: 2025.01.01)" required>
-            <input type="text" id="genre" name="genre" placeholder="장르 (예: Ballad)">
-            <textarea id="lyrics" name="lyrics" placeholder="가사를 입력하세요..." rows="8"></textarea>
-            <label for="songFile">음악 파일 선택:</label>
-            <input type="file" id="songFile" name="songFile" accept="audio/*" required>
-            
-            <div class="privacy-setting">
-                <label for="isPublic">공개 설정:</label>
-                <select id="isPublic" name="isPublic" required>
-                    <option value="true">공개 - 모든 사용자가 볼 수 있음</option>
-                    <option value="false">비공개 - 나만 볼 수 있음</option>
-                </select>
+        <!-- 새 노래 추가 섹션 -->
+        <div class="add-song-section">
+            <div class="section-header">
+                <h2 class="section-title">My Song List</h2>
+                <button id="toggle-add-form-btn" class="btn-primary">Add a New Song</button>
             </div>
             
-            <button type="submit">노래 추가하기</button>
-        </form>
+            <!-- 새 노래 추가 폼 (기본적으로 숨김) -->
+            <div id="add-song-form-container" class="add-form-container" style="display: none;">
+                <h3>Add a New Song</h3>
+                <form id="add-song-form" enctype="multipart/form-data">
+                    <label for="songFile">음악 파일 선택:</label>
+                    <input type="file" id="songFile" name="songFile" accept="audio/*" required>
+                    
+                    <input type="text" id="title" name="title" placeholder="노래 제목" required>
+                    <input type="text" id="artist" name="artist" placeholder="아티스트">
+                    <input type="text" id="composer" name="composer" placeholder="작곡가">
+                    <input type="text" id="date" name="date" placeholder="발매일 (YYYY.MM.DD 형식)" pattern="[0-9]{4}\.[0-9]{2}\.[0-9]{2}" title="YYYY.MM.DD 형식으로 입력하세요 (예: 2025.01.01)" required>
+                    <input type="text" id="genre" name="genre" placeholder="장르 (예: Ballad)">
+                    <textarea id="lyrics" name="lyrics" placeholder="가사를 입력하세요..." rows="8"></textarea>
+                    
+                    <div class="privacy-setting">
+                        <label for="isPublic">공개 설정:</label>
+                        <select id="isPublic" name="isPublic" required>
+                            <option value="true">공개 - 모든 사용자가 볼 수 있음</option>
+                            <option value="false">비공개 - 나만 볼 수 있음</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="submit">노래 추가하기</button>
+                        <button type="button" id="cancel-add-btn">취소</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <hr class="section-divider">
-
-        <h2 class="section-title">2. 노래 관리</h2>
         <ul id="song-management-list" class="song-list">
             </ul>
     </div>

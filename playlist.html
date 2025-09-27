@@ -6,10 +6,20 @@
     <title>My Playlists - Music Space V2</title>
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/playlist.css">
 </head>
 <body>
     <div class="container">
+        <!-- 사용자 정보 영역 (상단) -->
+        <div id="user-info" class="user-info-top" style="display: none;">
+            <span>안녕하세요, <span id="username"></span>님!</span>
+            <div class="header-buttons">
+                <a href="index.html" class="btn-main">메인 페이지로 돌아가기</a>
+                <button id="logout-btn" class="btn-logout">로그아웃</button>
+            </div>
+        </div>
+        
         <h1 class="page-title">My Playlists</h1>
         <p class="page-subtitle">플레이리스트를 만들고 관리하세요.</p>
         

@@ -21,7 +21,65 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPlayIndex = 0; // 현재 재생 중인 노래 인덱스
     let isPlayingAll = false; // 전체 재생 모드 여부
 
-    // --- 2. 핵심 로직 함수 ---
+    // --- 2. 사용자 인증 관련 함수 ---
+    
+    /** 사용자 인증 상태 확인 */
+    async function checkAuthStatus() {
+        try {
+            const response = await fetch('/api/user', {
+                credentials: 'include'
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('로그인 상태:', data.user.username, '관리자:', data.user.isAdmin);
+                
+                // 로그인된 상태 - 상단 사용자 정보 영역 표시
+                const userInfoEl = document.getElementById('user-info');
+                const usernameEl = document.getElementById('username');
+                if (userInfoEl && usernameEl) {
+                    userInfoEl.style.display = 'flex';
+                    usernameEl.textContent = data.user.username;
+                }
+                
+            } else {
+                console.log('로그인되지 않은 상태');
+                
+                // 로그인되지 않은 상태 - 상단 사용자 정보 영역 숨김
+                const userInfoEl = document.getElementById('user-info');
+                if (userInfoEl) {
+                    userInfoEl.style.display = 'none';
+                }
+            }
+        } catch (error) {
+            console.error('인증 상태 확인 오류:', error);
+            const userInfoEl = document.getElementById('user-info');
+            if (userInfoEl) {
+                userInfoEl.style.display = 'none';
+            }
+        }
+    }
+
+    /** 로그아웃 기능 */
+    async function logout() {
+        try {
+            const response = await fetch('/api/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+            
+            if (response.ok) {
+                console.log('로그아웃 성공');
+                window.location.href = '/login.html';
+            } else {
+                console.error('로그아웃 실패');
+            }
+        } catch (error) {
+            console.error('로그아웃 오류:', error);
+        }
+    }
+
+    // --- 3. 핵심 로직 함수 ---
 
     /** 모든 플레이리스트를 받아와 왼쪽 목록을 그리고, 데이터를 반환하는 함수 */
 async function fetchAndRenderPlaylists() {
@@ -561,6 +619,9 @@ async function fetchAndRenderPlaylists() {
 
     // --- 4. 초기 실행 ---
     async function init() {
+        // 사용자 인증 상태 확인
+        await checkAuthStatus();
+        
         const playlists = await fetchAndRenderPlaylists();
 
         if (playlists && playlists.length > 0) {
@@ -594,6 +655,12 @@ async function fetchAndRenderPlaylists() {
             }
         }
     });
+
+    // 로그아웃 버튼 이벤트 리스너
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
 
     init(); // 페이지 로딩 시 메인 함수 실행
 });
