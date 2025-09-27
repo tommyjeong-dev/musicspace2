@@ -8,45 +8,127 @@
 </head>
 <body>
     <div class="container">
+        <!-- 사용자 정보 헤더 -->
         <div class="profile-header">
             <img src="images/profile.jpg" alt="프로필 사진" class="profile-picture">
             <div class="header-text-content">
-                <h1>Tommy's Music Space</h1>
-                <p class="intro-text">이곳은 Tommy의 음악을 나누는 공간입니다. 방문을 환영합니다!</p>
+                <h1>Music Space V2</h1>
+                <p class="intro-text">음악을 즐기고 관리하세요.</p>
                 <div id="user-info" style="display: none;">
                     <p>안녕하세요, <span id="username"></span>님!</p>
                 </div>
             </div>
             <div class="header-buttons">
-                <a href="playlist.html" class="btn-playlist">My Playlists</a>
                 <button id="logout-btn" class="btn-logout" style="display: none;">로그아웃</button>
                 <a href="login.html" id="login-link" class="btn-login" style="display: inline-block;">로그인</a>
             </div>
         </div>
+        
         <hr class="section-divider">
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="노래 제목, 아티스트, 장르 등으로 검색">
+
+        <!-- 메인 메뉴 -->
+        <div class="main-menu">
+            <button id="search-btn" class="menu-btn active">
+                <span class="menu-icon">🔍</span>
+                <span class="menu-text">검색</span>
+            </button>
+            <button id="my-songs-btn" class="menu-btn">
+                <span class="menu-icon">🎵</span>
+                <span class="menu-text">나의 노래</span>
+            </button>
+            <button id="my-playlists-btn" class="menu-btn">
+                <span class="menu-icon">📋</span>
+                <span class="menu-text">나의 플레이리스트</span>
+            </button>
         </div>
-        <table class="song-table">
-            <thead>
-                <tr>
-                    <th data-sort="title">노래 제목</th>
-                    <th data-sort="genre">장르</th>
-                    <th data-sort="composer">작사/작곡</th>
-                    <th data-sort="artist">가수</th>
-                    <th data-sort="date">발매일</th>
-                    <th>가사보기</th>
-                    <th>재생</th>
-                    <th>PL에 추가</th>
-                </tr>
-            </thead>
-            <tbody id="song-table-body"></tbody>
-        </table>
+
+        <!-- 검색 섹션 -->
+        <div id="search-section" class="content-section active">
+            <div class="search-container">
+                <div class="search-input-group">
+                    <input type="text" id="search-input" placeholder="노래 제목, 아티스트로 검색...">
+                    <select id="genre-select">
+                        <option value="">모든 장르</option>
+                        <!-- 장르 옵션들이 동적으로 로드됩니다 -->
+                        <option value="custom">기타 (직접 입력)</option>
+                    </select>
+                    <input type="text" id="custom-genre-input" placeholder="장르 입력..." style="display: none;">
+                    <button id="search-submit-btn">검색</button>
+                </div>
+            </div>
+            
+            <div id="search-results" class="search-results" style="display: none;">
+                <div class="results-header">
+                    <h3>검색 결과</h3>
+                    <span id="results-count"></span>
+                </div>
+                <div class="song-table-container">
+                    <table class="song-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="title">제목</th>
+                                <th class="sortable" data-sort="artist">아티스트</th>
+                                <th class="sortable" data-sort="genre">장르</th>
+                                <th class="sortable" data-sort="date">발매일</th>
+                                <th>공개여부</th>
+                                <th>재생</th>
+                                <th>PL에 추가</th>
+                                <th>가사</th>
+                            </tr>
+                        </thead>
+                        <tbody id="search-results-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 나의 노래 섹션 -->
+        <div id="my-songs-section" class="content-section">
+            <div class="section-header">
+                <h3>나의 노래</h3>
+                <button id="add-song-btn" class="btn-primary">+ 새 노래 추가</button>
+            </div>
+            <div class="song-table-container">
+                <table class="song-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="title">제목</th>
+                            <th class="sortable" data-sort="artist">아티스트</th>
+                            <th class="sortable" data-sort="genre">장르</th>
+                            <th>공개여부</th>
+                            <th>재생</th>
+                            <th>수정</th>
+                            <th>삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody id="my-songs-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 나의 플레이리스트 섹션 -->
+        <div id="my-playlists-section" class="content-section">
+            <div class="section-header">
+                <h3>나의 플레이리스트</h3>
+                <button id="manage-playlists-btn" class="btn-primary">플레이리스트 관리</button>
+            </div>
+            <div id="playlists-list" class="playlists-list">
+                <!-- 플레이리스트 목록이 여기에 표시됩니다 -->
+            </div>
+        </div>
     </div>
+
+    <!-- 오디오 플레이어 -->
     <audio id="music-player" controls></audio>
+
+    <!-- 하단 링크 -->
     <div style="text-align: center; margin-top: 50px; margin-bottom: 20px;">
         <a href="admin.html" id="bottom-admin-link" style="display: none;">관리자 페이지로 이동</a>
     </div>
+
+    <!-- 모달들 -->
     <div id="lyrics-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn">&times;</button>
@@ -54,6 +136,7 @@
             <pre id="modal-lyrics-content"></pre>
         </div>
     </div>
+    
     <div id="playlist-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn">&times;</button>
@@ -61,6 +144,7 @@
             <ul id="modal-playlist-list" class="modal-playlist-list"></ul>
         </div>
     </div>
+
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

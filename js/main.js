@@ -1,10 +1,30 @@
+// 새로운 메인페이지 JavaScript
 import { fetchAllSongs } from './api.js';
-import { renderSongTable } from './ui.js';
 
-const songTableBody = document.getElementById('song-table-body');
-const player = document.getElementById('music-player');
-const tableHeader = document.querySelector('.song-table thead');
+// 전역 변수
+let allSongs = [];
+let currentSort = { column: 'title', ascending: true };
+let songIdToAdd = null;
+
+// DOM 요소들
+const searchBtn = document.getElementById('search-btn');
+const mySongsBtn = document.getElementById('my-songs-btn');
+const myPlaylistsBtn = document.getElementById('my-playlists-btn');
+const searchSection = document.getElementById('search-section');
+const mySongsSection = document.getElementById('my-songs-section');
+const myPlaylistsSection = document.getElementById('my-playlists-section');
 const searchInput = document.getElementById('search-input');
+const genreSelect = document.getElementById('genre-select');
+const customGenreInput = document.getElementById('custom-genre-input');
+const searchSubmitBtn = document.getElementById('search-submit-btn');
+const searchResults = document.getElementById('search-results');
+const searchResultsBody = document.getElementById('search-results-body');
+const resultsCount = document.getElementById('results-count');
+const mySongsBody = document.getElementById('my-songs-body');
+const playlistsList = document.getElementById('playlists-list');
+const addSongBtn = document.getElementById('add-song-btn');
+const managePlaylistsBtn = document.getElementById('manage-playlists-btn');
+const player = document.getElementById('music-player');
 const lyricsModal = document.getElementById('lyrics-modal');
 const playlistModal = document.getElementById('playlist-modal');
 const modalPlaylistList = document.getElementById('modal-playlist-list');
@@ -13,243 +33,102 @@ const usernameSpan = document.getElementById('username');
 const logoutBtn = document.getElementById('logout-btn');
 const loginLink = document.getElementById('login-link');
 const bottomAdminLink = document.getElementById('bottom-admin-link');
-let allSongs = [];
-let currentSort = { column: 'title', ascending: true };
-let songIdToAdd = null;
 
-function updateView() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const filteredSongs = allSongs.filter(song => 
-        song.title.toLowerCase().includes(searchTerm) ||
-        (song.artist && song.artist.toLowerCase().includes(searchTerm)) ||
-        (song.composer && song.composer.toLowerCase().includes(searchTerm)) ||
-        (song.genre && song.genre.toLowerCase().includes(searchTerm))
-    );
-    filteredSongs.sort((a, b) => {
-        let valA = a[currentSort.column] || '';
-        let valB = b[currentSort.column] || '';
-        if (valA < valB) return currentSort.ascending ? -1 : 1;
-        if (valA > valB) return currentSort.ascending ? 1 : -1;
-        return 0;
-    });
-    renderSongTable(filteredSongs, songTableBody);
-    updateTableHeaderSortUI();
+// 초기화
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('새로운 메인페이지 초기화 시작');
+    
+    // 사용자 인증 상태 확인
+    await checkAuthStatus();
+    
+    // 모든 노래 데이터 로드
+    await loadAllSongs();
+    
+    // 이벤트 리스너 설정
+    setupEventListeners();
+    
+    console.log('새로운 메인페이지 초기화 완료');
+});
+
+// 모든 노래 데이터 로드
+async function loadAllSongs() {
+    try {
+        allSongs = await fetchAllSongs();
+        console.log('로드된 노래 수:', allSongs.length);
+        
+        // 장르 목록 동적 생성
+        await loadGenres();
+    } catch (error) {
+        console.error('노래 데이터 로드 실패:', error);
+        allSongs = [];
+    }
 }
 
-function updateTableHeaderSortUI() {
-    document.querySelectorAll('.song-table th[data-sort]').forEach(th => {
-        if (th.dataset.sort === currentSort.column) {
-            th.classList.add('active');
-            th.dataset.direction = currentSort.ascending ? 'asc' : 'desc';
-        } else {
-            th.classList.remove('active');
-            th.removeAttribute('data-direction');
-        }
-    });
-}
-
-function setupEventListeners() {
-    songTableBody.addEventListener('click', async (event) => {
-        const target = event.target;
-        if (target.matches('.btn-play')) {
-            const src = target.dataset.src;
-            const playingRow = document.querySelector('tr.playing');
-            if (playingRow) playingRow.classList.remove('playing');
-            target.closest('tr').classList.add('playing');
-            player.src = src;
-            player.play();
-        }
-        if (target.matches('.btn-lyrics')) {
-            const songId = target.dataset.songId;
-            try {
-                const response = await fetch(`/api/songs/${songId}`);
-                const song = await response.json();
-                document.getElementById('modal-song-title').textContent = song.title;
-                document.getElementById('modal-lyrics-content').textContent = song.lyrics || "가사 정보가 없습니다.";
-                lyricsModal.classList.add('visible');
-            } catch (error) {
-                console.error("가사 로딩 중 오류:", error);
+// 장르 목록 동적 로드
+async function loadGenres() {
+    try {
+        // 모든 노래에서 고유한 장르 추출
+        const uniqueGenres = [...new Set(allSongs.map(song => song.genre).filter(genre => genre))].sort();
+        
+        // 기존 옵션들 제거 (첫 번째 "모든 장르" 옵션 제외)
+        const genreSelect = document.getElementById('genre-select');
+        if (genreSelect) {
+            // 기존 옵션들 제거 (첫 번째 "모든 장르" 옵션 제외)
+            while (genreSelect.children.length > 1) {
+                genreSelect.removeChild(genreSelect.lastChild);
             }
+            
+            // 새로운 장르 옵션들 추가
+            uniqueGenres.forEach(genre => {
+                const option = document.createElement('option');
+                option.value = genre;
+                option.textContent = genre;
+                genreSelect.appendChild(option);
+            });
+            
+            console.log('로드된 장르 목록:', uniqueGenres);
         }
-        if (target.matches('.btn-add-to-playlist')) {
-            songIdToAdd = target.dataset.songId;
-            try {
-                const response = await fetch('/api/playlists', {
-                    credentials: 'include'
-                });
-                
-                if (response.status === 401) {
-                    alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
-                    window.location.href = '/login.html';
-                    return;
-                }
-                
-                const playlists = await response.json();
-                modalPlaylistList.innerHTML = '';
-                playlists.forEach(playlist => {
-                    const li = document.createElement('li');
-                    li.textContent = playlist.name;
-                    li.dataset.playlistId = playlist.id;
-                    modalPlaylistList.appendChild(li);
-                });
-                playlistModal.classList.add('visible');
-            } catch (error) {
-                console.error('플레이리스트 목록 로딩 오류:', error);
-                alert('플레이리스트를 불러오는 중 오류가 발생했습니다.');
-            }
-        }
-    });
-
-    modalPlaylistList.addEventListener('click', async (event) => {
-        if (event.target.tagName === 'LI') {
-            const playlistId = event.target.dataset.playlistId;
-            try {
-                const response = await fetch(`/api/playlists/${playlistId}/songs`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ songId: songIdToAdd }),
-                    credentials: 'include'
-                });
-                
-                if (response.status === 401) {
-                    alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
-                    window.location.href = '/login.html';
-                    return;
-                }
-                
-                if (response.ok) {
-                    alert('플레이리스트에 노래를 추가했습니다.');
-                } else {
-                    const error = await response.json();
-                    alert(error.message || '노래 추가에 실패했습니다.');
-                }
-            } catch (error) {
-                console.error('플레이리스트에 노래 추가 오류:', error);
-                alert('플레이리스트 추가 중 오류가 발생했습니다.');
-            } finally {
-                playlistModal.classList.remove('visible');
-            }
-        }
-    });
-
-    lyricsModal.addEventListener('click', (e) => { if (e.target.matches('.close-btn') || e.target === lyricsModal) lyricsModal.classList.remove('visible'); });
-    playlistModal.addEventListener('click', (e) => { if (e.target.matches('.close-btn') || e.target === playlistModal) playlistModal.classList.remove('visible'); });
-    
-    tableHeader.addEventListener('click', (event) => {
-        const target = event.target;
-        if (target.tagName !== 'TH' || !target.dataset.sort) return;
-        const sortColumn = target.dataset.sort;
-        if (currentSort.column === sortColumn) {
-            currentSort.ascending = !currentSort.ascending;
-        } else {
-            currentSort.column = sortColumn;
-            currentSort.ascending = true;
-        }
-        updateView();
-    });
-    searchInput.addEventListener('input', () => {
-        updateView();
-    });
-    
-    // 로그아웃 버튼 이벤트
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', logout);
+    } catch (error) {
+        console.error('장르 목록 로드 실패:', error);
     }
 }
 
 // 사용자 인증 상태 확인
 async function checkAuthStatus() {
     try {
-        console.log('=== 인증 상태 확인 시작 ===');
-        console.log('현재 쿠키:', document.cookie);
-        
         const response = await fetch('/api/user', {
-            credentials: 'include',
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            credentials: 'include'
         });
-        
-        console.log('API 응답 상태:', response.status);
-        console.log('API 응답 헤더:', response.headers);
         
         if (response.ok) {
             const data = await response.json();
             console.log('로그인 상태:', data.user.username, '관리자:', data.user.isAdmin);
             
-            // DOM 요소들 확인
-            console.log('DOM 요소 확인:');
-            console.log('- usernameSpan:', usernameSpan);
-            console.log('- userInfo:', userInfo);
-            console.log('- logoutBtn:', logoutBtn);
-            console.log('- loginLink:', loginLink);
-            console.log('- bottomAdminLink:', bottomAdminLink);
+            // 로그인된 상태
+            if (userInfo) userInfo.style.display = 'block';
+            if (usernameSpan) usernameSpan.textContent = data.user.username;
+            if (logoutBtn) logoutBtn.style.display = 'inline-block';
+            if (loginLink) loginLink.style.display = 'none';
             
-            // 요소가 존재하는지 확인하고 업데이트
-            if (usernameSpan) {
-                usernameSpan.textContent = data.user.username;
-                console.log('✅ 사용자명 설정:', data.user.username);
-            } else {
-                console.log('❌ usernameSpan 요소를 찾을 수 없음');
-            }
-            
-            if (userInfo) {
-                userInfo.style.display = 'block';
-                console.log('✅ 사용자 정보 표시');
-            } else {
-                console.log('❌ userInfo 요소를 찾을 수 없음');
-            }
-            
-            if (logoutBtn) {
-                logoutBtn.style.display = 'inline-block';
-                console.log('✅ 로그아웃 버튼 표시');
-            } else {
-                console.log('❌ logoutBtn 요소를 찾을 수 없음');
-            }
-            
-            if (loginLink) {
-                loginLink.style.display = 'none';
-                console.log('✅ 로그인 링크 숨김');
-            } else {
-                console.log('❌ loginLink 요소를 찾을 수 없음');
-            }
-            
+            // 하단 관리자 링크 처리
             if (bottomAdminLink) {
                 bottomAdminLink.style.display = 'inline-block';
-                // 사용자 권한에 따라 하단 링크 텍스트 변경
                 if (data.user.isAdmin) {
                     bottomAdminLink.textContent = '관리자 페이지로 이동';
                 } else {
                     bottomAdminLink.textContent = '나의 노래 관리하기';
                 }
-                console.log('✅ 하단 관리자 링크 표시:', bottomAdminLink.textContent);
-            } else {
-                console.log('❌ bottomAdminLink 요소를 찾을 수 없음');
             }
             
-            console.log('=== 로그인 상태 UI 업데이트 완료 ===');
+            // 플레이리스트 목록 로드
+            await loadPlaylists();
+            
         } else {
-            console.log('로그인되지 않은 상태 (응답 상태:', response.status, ')');
-            
-            if (userInfo) {
-                userInfo.style.display = 'none';
-                console.log('✅ 사용자 정보 숨김');
-            }
-            if (logoutBtn) {
-                logoutBtn.style.display = 'none';
-                console.log('✅ 로그아웃 버튼 숨김');
-            }
-            if (loginLink) {
-                loginLink.style.display = 'inline-block';
-                console.log('✅ 로그인 링크 표시');
-            }
-            if (bottomAdminLink) {
-                bottomAdminLink.style.display = 'none';
-                console.log('✅ 하단 관리자 링크 숨김');
-            }
-            
-            console.log('=== 비로그인 상태 UI 업데이트 완료 ===');
+            // 로그인되지 않은 상태
+            if (userInfo) userInfo.style.display = 'none';
+            if (logoutBtn) logoutBtn.style.display = 'none';
+            if (loginLink) loginLink.style.display = 'inline-block';
+            if (bottomAdminLink) bottomAdminLink.style.display = 'none';
         }
     } catch (error) {
         console.error('인증 상태 확인 오류:', error);
@@ -260,6 +139,449 @@ async function checkAuthStatus() {
     }
 }
 
+// 플레이리스트 목록 로드
+async function loadPlaylists() {
+    try {
+        const response = await fetch('/api/playlists', {
+            credentials: 'include'
+        });
+        
+        if (response.status === 401) {
+            console.log('로그인이 필요합니다');
+            return;
+        }
+        
+        const playlists = await response.json();
+        renderPlaylists(playlists);
+    } catch (error) {
+        console.error('플레이리스트 로드 오류:', error);
+    }
+}
+
+// 플레이리스트 렌더링
+function renderPlaylists(playlists) {
+    if (!playlistsList) return;
+    
+    console.log('플레이리스트 데이터:', playlists);
+    
+    playlistsList.innerHTML = '';
+    
+    if (playlists.length === 0) {
+        playlistsList.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">플레이리스트가 없습니다.</p>';
+        return;
+    }
+    
+    playlists.forEach(playlist => {
+        console.log(`플레이리스트 "${playlist.name}":`, playlist);
+        const songCount = playlist.Songs ? playlist.Songs.length : 0;
+        console.log(`노래 수: ${songCount}`);
+        
+        const card = document.createElement('div');
+        card.className = 'playlist-card';
+        card.innerHTML = `
+            <h4>${playlist.name}</h4>
+            <p>노래 ${songCount}곡</p>
+        `;
+        card.addEventListener('click', () => {
+            window.location.href = `playlist.html?id=${playlist.id}`;
+        });
+        playlistsList.appendChild(card);
+    });
+}
+
+// 이벤트 리스너 설정
+function setupEventListeners() {
+    // 메뉴 버튼 클릭 이벤트
+    searchBtn.addEventListener('click', () => switchSection('search'));
+    mySongsBtn.addEventListener('click', () => switchSection('my-songs'));
+    myPlaylistsBtn.addEventListener('click', () => switchSection('my-playlists'));
+    
+    // 검색 관련 이벤트
+    searchSubmitBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performSearch();
+    });
+    genreSelect.addEventListener('change', handleGenreChange);
+    customGenreInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performSearch();
+    });
+    
+    // 버튼 클릭 이벤트
+    addSongBtn.addEventListener('click', () => {
+        window.location.href = 'admin.html';
+    });
+    
+    managePlaylistsBtn.addEventListener('click', () => {
+        window.location.href = 'playlist.html';
+    });
+    
+    // 로그아웃 버튼
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
+    
+    // 모달 닫기 이벤트
+    lyricsModal.addEventListener('click', (e) => {
+        if (e.target.matches('.close-btn') || e.target === lyricsModal) {
+            lyricsModal.classList.remove('visible');
+        }
+    });
+    
+    playlistModal.addEventListener('click', (e) => {
+        if (e.target.matches('.close-btn') || e.target === playlistModal) {
+            playlistModal.classList.remove('visible');
+        }
+    });
+}
+
+// 섹션 전환
+function switchSection(sectionName) {
+    // 모든 섹션 숨기기
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // 모든 메뉴 버튼 비활성화
+    document.querySelectorAll('.menu-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 선택된 섹션 표시
+    const targetSection = document.getElementById(`${sectionName}-section`);
+    if (targetSection) {
+        targetSection.classList.add('active');
+    }
+    
+    // 선택된 메뉴 버튼 활성화
+    const targetBtn = document.getElementById(`${sectionName}-btn`);
+    if (targetBtn) {
+        targetBtn.classList.add('active');
+    }
+    
+    // 섹션별 데이터 로드
+    if (sectionName === 'my-songs') {
+        loadMySongs();
+    } else if (sectionName === 'my-playlists') {
+        loadPlaylists();
+    }
+}
+
+// 장르 선택 변경 핸들러
+function handleGenreChange() {
+    const selectedGenre = genreSelect.value;
+    
+    if (selectedGenre === 'custom') {
+        customGenreInput.style.display = 'block';
+        customGenreInput.focus();
+    } else {
+        customGenreInput.style.display = 'none';
+        customGenreInput.value = '';
+    }
+    
+    performSearch();
+}
+
+// 검색 수행
+function performSearch() {
+    const searchTerm = searchInput.value.trim();
+    const selectedGenre = genreSelect.value;
+    const customGenre = customGenreInput.value.trim();
+    
+    // 실제 사용할 장르 값 결정
+    let actualGenre = '';
+    if (selectedGenre === 'custom' && customGenre) {
+        actualGenre = customGenre;
+    } else if (selectedGenre && selectedGenre !== 'custom') {
+        actualGenre = selectedGenre;
+    }
+    
+    // 와일드카드 검색 (*) 처리
+    const isWildcardSearch = searchTerm === '*';
+    
+    // 검색어와 장르가 모두 비어있으면 결과 숨김 (와일드카드 제외)
+    if (!searchTerm && !actualGenre) {
+        searchResults.style.display = 'none';
+        return;
+    }
+    
+    // allSongs에는 이미 로그인한 사용자의 경우 공개 노래 + 본인 비공개 노래가 포함됨
+    // 로그인하지 않은 사용자의 경우 공개 노래만 포함됨
+    let filteredSongs = allSongs;
+    
+    // 텍스트 검색 (제목, 아티스트, 작곡가) - 와일드카드가 아닌 경우에만
+    if (searchTerm && !isWildcardSearch) {
+        const searchTermLower = searchTerm.toLowerCase();
+        filteredSongs = filteredSongs.filter(song => 
+            song.title.toLowerCase().includes(searchTermLower) ||
+            (song.artist && song.artist.toLowerCase().includes(searchTermLower)) ||
+            (song.composer && song.composer.toLowerCase().includes(searchTermLower))
+        );
+    }
+    
+    // 장르 필터링
+    if (actualGenre) {
+        filteredSongs = filteredSongs.filter(song => 
+            song.genre && song.genre.toLowerCase().includes(actualGenre.toLowerCase())
+        );
+    }
+    
+    renderSearchResults(filteredSongs);
+}
+
+// 검색 결과 렌더링
+function renderSearchResults(songs) {
+    if (songs.length === 0) {
+        searchResultsBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #999;">검색 결과가 없습니다.</td></tr>';
+    } else {
+        searchResultsBody.innerHTML = '';
+        songs.forEach(song => {
+            const row = searchResultsBody.insertRow();
+            row.innerHTML = `
+                <td class="song-title" data-src="${song.src}">${song.title}</td>
+                <td>${song.artist || '-'}</td>
+                <td>${song.genre || '-'}</td>
+                <td>${song.date || '-'}</td>
+                <td><span class="privacy-badge ${song.isPublic ? 'public' : 'private'}">${song.isPublic ? '공개' : '비공개'}</span></td>
+                <td><button class="btn btn-play" data-src="${song.src}">재생</button></td>
+                <td><button class="btn btn-add-to-playlist" data-song-id="${song.id}">PL에 추가</button></td>
+                <td><button class="btn btn-lyrics" data-song-id="${song.id}">가사</button></td>
+            `;
+        });
+    }
+    
+    // 검색 조건 표시
+    const searchTerm = searchInput.value.trim();
+    const selectedGenre = genreSelect.value;
+    const customGenre = customGenreInput.value.trim();
+    
+    let actualGenre = '';
+    if (selectedGenre === 'custom' && customGenre) {
+        actualGenre = customGenre;
+    } else if (selectedGenre && selectedGenre !== 'custom') {
+        actualGenre = selectedGenre;
+    }
+    
+    let searchCondition = '';
+    if (searchTerm && actualGenre) {
+        searchCondition = `"${searchTerm}" + ${actualGenre} 장르`;
+    } else if (searchTerm) {
+        searchCondition = `"${searchTerm}"`;
+    } else if (actualGenre) {
+        searchCondition = `${actualGenre} 장르`;
+    }
+    
+    resultsCount.textContent = `${songs.length}곡 ${searchCondition ? `(${searchCondition})` : ''}`;
+    searchResults.style.display = 'block';
+}
+
+// 나의 노래 로드
+async function loadMySongs() {
+    try {
+        const response = await fetch('/api/songs/my', {
+            credentials: 'include'
+        });
+        
+        if (response.status === 401) {
+            mySongsBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">로그인이 필요합니다.</td></tr>';
+            return;
+        }
+        
+        const songs = await response.json();
+        renderMySongs(songs);
+    } catch (error) {
+        console.error('나의 노래 로드 오류:', error);
+        mySongsBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">노래를 불러오는 중 오류가 발생했습니다.</td></tr>';
+    }
+}
+
+// 나의 노래 렌더링
+function renderMySongs(songs) {
+    if (songs.length === 0) {
+        mySongsBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">업로드한 노래가 없습니다.</td></tr>';
+        return;
+    }
+    
+    mySongsBody.innerHTML = '';
+    songs.forEach(song => {
+        const row = mySongsBody.insertRow();
+        row.innerHTML = `
+            <td class="song-title" data-src="${song.src}">${song.title}</td>
+            <td>${song.artist || '-'}</td>
+            <td>${song.genre || '-'}</td>
+            <td><span class="privacy-badge ${song.isPublic ? 'public' : 'private'}">${song.isPublic ? '공개' : '비공개'}</span></td>
+            <td><button class="btn btn-play" data-src="${song.src}">재생</button></td>
+            <td><button class="btn btn-edit" data-song-id="${song.id}">수정</button></td>
+            <td><button class="btn btn-delete" data-song-id="${song.id}">삭제</button></td>
+        `;
+    });
+}
+
+// 테이블 클릭 이벤트 처리
+document.addEventListener('click', async (event) => {
+    const target = event.target;
+    
+    // 재생 버튼
+    if (target.matches('.btn-play')) {
+        const src = target.dataset.src;
+        const playingRow = document.querySelector('tr.playing');
+        if (playingRow) playingRow.classList.remove('playing');
+        target.closest('tr').classList.add('playing');
+        player.src = src;
+        player.play();
+    }
+    
+    // 제목 클릭 (재생)
+    if (target.matches('.song-title')) {
+        const src = target.dataset.src;
+        const playingRow = document.querySelector('tr.playing');
+        if (playingRow) playingRow.classList.remove('playing');
+        target.closest('tr').classList.add('playing');
+        player.src = src;
+        player.play();
+    }
+    
+    // 가사 버튼
+    if (target.matches('.btn-lyrics')) {
+        const songId = target.dataset.songId;
+        try {
+            const response = await fetch(`/api/songs/${songId}`, {
+                credentials: 'include'
+            });
+            const song = await response.json();
+            document.getElementById('modal-song-title').textContent = song.title;
+            document.getElementById('modal-lyrics-content').textContent = song.lyrics || "가사 정보가 없습니다.";
+            lyricsModal.classList.add('visible');
+        } catch (error) {
+            console.error("가사 로딩 중 오류:", error);
+        }
+    }
+    
+    // 플레이리스트에 추가 버튼
+    if (target.matches('.btn-add-to-playlist')) {
+        songIdToAdd = target.dataset.songId;
+        try {
+            const response = await fetch('/api/playlists', {
+                credentials: 'include'
+            });
+            
+            if (response.status === 401) {
+                alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            const playlists = await response.json();
+            
+            if (playlists.length === 0) {
+                alert('플레이리스트가 없습니다. 플레이리스트 페이지에서 먼저 플레이리스트를 만들어주세요.');
+                window.location.href = 'playlist.html';
+                return;
+            }
+            
+            modalPlaylistList.innerHTML = '';
+            playlists.forEach(playlist => {
+                const li = document.createElement('li');
+                const isAlreadyAdded = playlist.Songs && playlist.Songs.some(song => song.id == songIdToAdd);
+                
+                if (isAlreadyAdded) {
+                    li.innerHTML = `
+                        <span class="playlist-name">${playlist.name}</span>
+                        <span class="already-added">✓ 이미 추가됨</span>
+                    `;
+                    li.classList.add('already-added-item');
+                    li.style.cursor = 'not-allowed';
+                    li.style.opacity = '0.6';
+                } else {
+                    li.innerHTML = `<span class="playlist-name">${playlist.name}</span>`;
+                }
+                
+                li.dataset.playlistId = playlist.id;
+                li.dataset.isAlreadyAdded = isAlreadyAdded;
+                modalPlaylistList.appendChild(li);
+            });
+            playlistModal.classList.add('visible');
+        } catch (error) {
+            console.error('플레이리스트 목록 로딩 오류:', error);
+            alert('플레이리스트를 불러오는 중 오류가 발생했습니다.');
+        }
+    }
+    
+    // 수정 버튼
+    if (target.matches('.btn-edit')) {
+        const songId = target.dataset.songId;
+        window.location.href = `edit.html?id=${songId}&admin=false`;
+    }
+    
+    // 삭제 버튼
+    if (target.matches('.btn-delete')) {
+        const songId = target.dataset.songId;
+        if (confirm('정말로 이 노래를 삭제하시겠습니까?')) {
+            try {
+                const response = await fetch(`/api/songs/${songId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    alert('노래가 삭제되었습니다.');
+                    loadMySongs(); // 목록 새로고침
+                } else {
+                    alert('삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('노래 삭제 오류:', error);
+                alert('삭제 중 오류가 발생했습니다.');
+            }
+        }
+    }
+});
+
+// 플레이리스트 모달에서 플레이리스트 선택
+modalPlaylistList.addEventListener('click', async (event) => {
+    if (event.target.tagName === 'LI' || event.target.closest('LI')) {
+        const li = event.target.tagName === 'LI' ? event.target : event.target.closest('LI');
+        const playlistId = li.dataset.playlistId;
+        const isAlreadyAdded = li.dataset.isAlreadyAdded === 'true';
+        
+        // 이미 추가된 플레이리스트는 클릭 방지
+        if (isAlreadyAdded) {
+            return;
+        }
+        try {
+            const response = await fetch(`/api/playlists/${playlistId}/songs`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ songId: songIdToAdd }),
+                credentials: 'include'
+            });
+            
+            if (response.status === 401) {
+                alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            if (response.ok) {
+                const result = await response.json();
+                alert(result.message || '플레이리스트에 노래를 추가했습니다.');
+            } else {
+                const error = await response.json();
+                if (response.status === 409 && error.isDuplicate) {
+                    // 중복 추가 시도 - 경고 메시지 표시
+                    alert(`⚠️ ${error.message}`);
+                } else {
+                    alert(error.message || '노래 추가에 실패했습니다.');
+                }
+            }
+        } catch (error) {
+            console.error('플레이리스트에 노래 추가 오류:', error);
+            alert('플레이리스트 추가 중 오류가 발생했습니다.');
+        } finally {
+            playlistModal.classList.remove('visible');
+        }
+    }
+});
+
 // 로그아웃 기능
 async function logout() {
     try {
@@ -269,10 +591,8 @@ async function logout() {
         });
         
         if (response.ok) {
-            userInfo.style.display = 'none';
-            logoutBtn.style.display = 'none';
-            loginLink.style.display = 'inline-block';
             alert('로그아웃되었습니다.');
+            window.location.reload();
         } else {
             alert('로그아웃에 실패했습니다.');
         }
@@ -281,46 +601,3 @@ async function logout() {
         alert('로그아웃 중 오류가 발생했습니다.');
     }
 }
-
-
-async function init() {
-    console.log('메인 페이지 초기화 시작');
-    
-    // 노래 데이터 로드 (사용자 권한에 따라 공개/전체 노래)
-    allSongs = await fetchAllSongs();
-    
-    // 인증 상태 확인 및 UI 업데이트
-    await checkAuthStatus();
-    
-    // 이벤트 리스너 설정
-    setupEventListeners();
-    
-    // 뷰 업데이트
-    updateView();
-    
-    console.log('메인 페이지 초기화 완료');
-}
-
-// 모듈 방식에서 안전한 초기화
-async function startApp() {
-    console.log('main.js 모듈이 로드되었습니다.');
-    console.log('현재 DOM 상태:', document.readyState);
-    
-    // DOM이 준비될 때까지 기다림
-    if (document.readyState === 'loading') {
-        console.log('DOM이 아직 로딩 중입니다. DOMContentLoaded 이벤트를 기다립니다.');
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM이 로드되었습니다. 초기화를 시작합니다.');
-            init();
-        });
-    } else {
-        console.log('DOM이 이미 준비되었습니다. 즉시 초기화를 시작합니다.');
-        // 약간의 지연을 두어 DOM이 완전히 준비되도록 함
-        setTimeout(() => {
-            init();
-        }, 100);
-    }
-}
-
-// 앱 시작
-startApp();

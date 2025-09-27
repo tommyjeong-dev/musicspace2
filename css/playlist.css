@@ -158,3 +158,134 @@
 .playlist-buttons button:hover {
     color: #f1c40f;
 }
+
+/* 플레이리스트 헤더 스타일 */
+.playlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #444;
+}
+
+.playlist-header h3 {
+    color: #f1c40f;
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.btn-add-song {
+    background: #f1c40f;
+    color: #333;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-add-song:hover {
+    background: #f39c12;
+    transform: translateY(-1px);
+}
+
+/* 노래 추가 모달 스타일 */
+.song-search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#song-search-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #555;
+    border-radius: 8px;
+    background-color: #444;
+    color: white;
+    font-size: 16px;
+}
+
+#song-search-input::placeholder {
+    color: #999;
+}
+
+#search-songs-btn {
+    padding: 12px 20px;
+    background: #f1c40f;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+#search-songs-btn:hover {
+    background: #f39c12;
+    transform: translateY(-1px);
+}
+
+.song-selection-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.song-selection-list .song-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #444;
+    transition: background-color 0.2s;
+}
+
+.song-selection-list .song-item:hover {
+    background-color: #3a3a3a;
+}
+
+.song-selection-list .song-info {
+    flex: 1;
+}
+
+.song-selection-list .song-title {
+    color: #f1c40f;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.song-selection-list .song-details {
+    color: #bbb;
+    font-size: 0.9em;
+}
+
+.song-selection-list .add-to-playlist-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.song-selection-list .add-to-playlist-btn:hover {
+    background: #2ecc71;
+    transform: translateY(-1px);
+}
+
+.song-selection-list .add-to-playlist-btn:disabled {
+    background: #7f8c8d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.song-selection-list .already-added {
+    color: #27ae60;
+    font-size: 0.9em;
+    font-weight: 500;
+}

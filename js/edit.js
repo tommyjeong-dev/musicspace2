@@ -11,6 +11,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     const lyricsInput = document.getElementById('lyrics');
     const isPublicSelect = document.getElementById('isPublic');
 
+    // 날짜 형식 검증 및 포맷팅 함수들
+    function formatDateInput(input) {
+        let value = input.value.replace(/[^0-9]/g, ''); // 숫자만 추출
+        
+        if (value.length >= 4) {
+            value = value.substring(0, 4) + '.' + value.substring(4);
+        }
+        if (value.length >= 7) {
+            value = value.substring(0, 7) + '.' + value.substring(7, 9);
+        }
+        
+        input.value = value;
+    }
+    
+    function validateDate(dateString) {
+        const datePattern = /^(\d{4})\.(\d{2})\.(\d{2})$/;
+        const match = dateString.match(datePattern);
+        
+        if (!match) {
+            return { isValid: false, message: 'YYYY.MM.DD 형식으로 입력하세요 (예: 2025.01.01)' };
+        }
+        
+        const year = parseInt(match[1]);
+        const month = parseInt(match[2]);
+        const day = parseInt(match[3]);
+        
+        // 기본 범위 검증
+        if (year < 1900 || year > 2100) {
+            return { isValid: false, message: '연도는 1900-2100 사이여야 합니다.' };
+        }
+        if (month < 1 || month > 12) {
+            return { isValid: false, message: '월은 01-12 사이여야 합니다.' };
+        }
+        if (day < 1 || day > 31) {
+            return { isValid: false, message: '일은 01-31 사이여야 합니다.' };
+        }
+        
+        // 실제 날짜 유효성 검증
+        const date = new Date(year, month - 1, day);
+        if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+            return { isValid: false, message: '유효하지 않은 날짜입니다.' };
+        }
+        
+        return { isValid: true, message: '' };
+    }
+
     // URL에서 노래 ID와 관리자 모드 가져오기 (예: edit.html?id=4&admin=true)
     const urlParams = new URLSearchParams(window.location.search);
     const songId = urlParams.get('id');
@@ -98,9 +144,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert(`데이터를 불러오는 중 오류가 발생했습니다.\n오류: ${error.message}`);
     }
 
-    // --- 3. 폼 제출(저장) 이벤트 처리 ---
+    // --- 3. 이벤트 리스너 설정 ---
+    
+    // 날짜 입력 필드 이벤트
+    if (dateInput) {
+        // 실시간 포맷팅
+        dateInput.addEventListener('input', (e) => {
+            formatDateInput(e.target);
+        });
+        
+        // 포커스 아웃 시 검증
+        dateInput.addEventListener('blur', (e) => {
+            const validation = validateDate(e.target.value);
+            if (!validation.isValid) {
+                e.target.style.borderColor = '#e74c3c';
+                e.target.title = validation.message;
+            } else {
+                e.target.style.borderColor = '#27ae60';
+                e.target.title = '';
+            }
+        });
+        
+        // 포커스 시 스타일 초기화
+        dateInput.addEventListener('focus', (e) => {
+            e.target.style.borderColor = '';
+            e.target.title = '';
+        });
+    }
+
+    // --- 4. 폼 제출(저장) 이벤트 처리 ---
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
+        
+        // 날짜 검증
+        const dateValidation = validateDate(dateInput.value);
+        if (!dateValidation.isValid) {
+            alert(dateValidation.message);
+            dateInput.focus();
+            return;
+        }
 
         // 폼에서 수정된 데이터 가져오기
         const updatedData = {

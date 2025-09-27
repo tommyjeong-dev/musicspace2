@@ -398,7 +398,11 @@ app.delete('/api/songs/:id/admin', isAdmin, async (req, res) => {
 app.get('/api/playlists', isAuthenticated, async (req, res) => {
     try {
         const playlists = await Playlist.findAll({
-            where: { UserId: req.user.id }
+            where: { UserId: req.user.id },
+            include: [{
+                model: Song,
+                through: { attributes: [] } // 중간 테이블 속성은 제외
+            }]
         });
         res.json(playlists);
     } catch (error) {
@@ -454,17 +458,34 @@ app.post('/api/playlists/:id/songs', isAuthenticated, async (req, res) => {
             where: { 
                 id: req.params.id,
                 UserId: req.user.id 
-            }
+            },
+            include: [{
+                model: Song,
+                through: { attributes: [] }
+            }]
         });
         const song = await Song.findByPk(req.body.songId);
         if (!playlist || !song) {
-            return res.status(404).send("플레이리스트 또는 노래를 찾을 수 없습니다.");
+            return res.status(404).json({ message: "플레이리스트 또는 노래를 찾을 수 없습니다." });
         }
+        
+        // 중복 체크: 이미 플레이리스트에 있는 노래인지 확인
+        const isAlreadyAdded = playlist.Songs.some(playlistSong => playlistSong.id === song.id);
+        if (isAlreadyAdded) {
+            return res.status(409).json({ 
+                message: `"${song.title}"은(는) 이미 "${playlist.name}" 플레이리스트에 추가되어 있습니다.`,
+                isDuplicate: true
+            });
+        }
+        
         await playlist.addSong(song); // 관계 메서드로 노래 추가
-        res.status(200).json(song);
+        res.status(200).json({ 
+            message: `"${song.title}"을(를) "${playlist.name}" 플레이리스트에 추가했습니다.`,
+            song: song
+        });
     } catch (error) {
         console.error("플레이리스트에 노래 추가 오류:", error);
-        res.status(500).send("플레이리스트에 노래 추가 중 오류 발생");
+        res.status(500).json({ message: "플레이리스트에 노래 추가 중 오류 발생" });
     }
 });
 
