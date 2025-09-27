@@ -15,8 +15,8 @@
             <span>안녕하세요, <span id="username"></span>님!</span>
             <div class="header-buttons">
                 <a href="index.html" class="btn-main">메인 페이지로 돌아가기</a>
-                <a href="admin-dashboard.html" class="btn-main">대시보드</a>
-                <a href="admin-users.html" class="btn-main">사용자 관리</a>
+                <a href="admin-dashboard.html" class="btn-main admin-only" style="display: none;">대시보드</a>
+                <a href="admin-users.html" class="btn-main admin-only" style="display: none;">사용자 관리</a>
                 <button id="logout-btn" class="btn-logout">로그아웃</button>
             </div>
         </div>
@@ -109,6 +109,30 @@
         <a href="login.html" id="login-link">로그인</a>
     </div>
 
+    <!-- 오디오 플레이어 -->
+    <div class="audio-player-container">
+        <div class="current-song-info">
+            <span id="current-song-title" class="song-title-display">재생할 노래를 선택하세요</span>
+        </div>
+        <div class="custom-player-controls">
+            <button id="play-pause-btn" class="play-pause-btn">▶</button>
+            <div class="time-display">
+                <span id="current-time">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+                <input type="range" id="progress-slider" min="0" max="100" value="0" class="progress-slider">
+            </div>
+        </div>
+        <div class="volume-controls">
+            <span class="volume-icon">🔊</span>
+            <input type="range" id="volume-slider" min="0" max="100" value="50" class="volume-slider">
+            <span id="volume-display" class="volume-display">50%</span>
+        </div>
+    </div>
+
+    <script src="js/global-audio.js"></script>
     <script src="js/admin.js"></script>
 </body>
 </html>

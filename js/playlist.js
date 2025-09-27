@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const songSearchInput = document.getElementById('song-search-input');
     const searchSongsBtn = document.getElementById('search-songs-btn');
     const availableSongsList = document.getElementById('available-songs-list');
-    const musicPlayer = document.getElementById('music-player');
+    // const musicPlayer = document.getElementById('music-player'); // 전역 오디오 플레이어 사용으로 제거
 
     let activePlaylistId = null;
     let allSongs = []; // 모든 노래 데이터
@@ -69,6 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             if (response.ok) {
+                // 음악 정지
+                if (window.globalAudioPlayer) {
+                    window.globalAudioPlayer.stopOnLogout();
+                }
+                
                 console.log('로그아웃 성공');
                 window.location.href = '/login.html';
             } else {
@@ -84,7 +89,20 @@ document.addEventListener('DOMContentLoaded', () => {
     /** 모든 플레이리스트를 받아와 왼쪽 목록을 그리고, 데이터를 반환하는 함수 */
 async function fetchAndRenderPlaylists() {
     try {
-        const response = await fetch('/api/playlists');
+        const response = await fetch('/api/playlists', {
+            credentials: 'include'
+        });
+        
+        if (response.status === 401) {
+            alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+            window.location.href = '/login.html';
+            return [];
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const playlists = await response.json();
         
         playlistListEl.innerHTML = '';
@@ -128,19 +146,22 @@ async function fetchAndRenderPlaylists() {
 
     /** 특정 플레이리스트의 수록곡을 받아와 오른쪽 목록을 그리는 함수 */
     function renderSongsInPlaylist(playlist) {
+        console.log('renderSongsInPlaylist 호출됨:', playlist);
         songListInPlaylistEl.innerHTML = '';
 
         if (!playlist.Songs || playlist.Songs.length === 0) {
+            console.log('플레이리스트에 수록곡이 없음');
             songListInPlaylistEl.innerHTML = '<li>수록곡이 없습니다.</li>';
             return;
         }
+
+        console.log('플레이리스트 수록곡 수:', playlist.Songs.length);
 
         playlist.Songs.forEach(song => {
             const listItem = document.createElement('li');
             listItem.innerHTML = `
                 <div class="song-info">
-                    <span class="song-title" data-src="${song.src}">${song.title}</span>
-                    <span class="song-artist">${song.artist || '알 수 없음'}</span>
+                    <span class="song-title" data-src="${song.src}">${song.title} | ${song.artist || '알 수 없음'}</span>
                 </div>
                 <div class="song-actions">
                     <button class="btn-play" data-src="${song.src}">재생</button>
@@ -157,8 +178,22 @@ async function fetchAndRenderPlaylists() {
         await fetchAndRenderPlaylists(); // 활성화된 항목 표시를 위해 다시 렌더링
 
         try {
-            const response = await fetch(`/api/playlists/${activePlaylistId}`);
+            const response = await fetch(`/api/playlists/${activePlaylistId}`, {
+                credentials: 'include'
+            });
+            
+            if (response.status === 401) {
+                alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const playlistDetails = await response.json();
+            console.log('플레이리스트 상세 정보:', playlistDetails);
             
             // 플레이리스트 헤더 업데이트
             selectedPlaylistNameEl.textContent = playlistDetails.name;
@@ -270,21 +305,21 @@ async function fetchAndRenderPlaylists() {
         // 재생 버튼 클릭
         if (event.target.matches('.btn-play')) {
             const src = event.target.dataset.src;
+            const songTitle = event.target.closest('li').querySelector('.song-title').textContent;
             const playingRow = document.querySelector('li.playing');
             if (playingRow) playingRow.classList.remove('playing');
             event.target.closest('li').classList.add('playing');
-            musicPlayer.src = src;
-            musicPlayer.play();
+            window.globalAudioPlayer.play(src, songTitle);
         }
         
         // 제목 클릭 (재생)
         if (event.target.matches('.song-title')) {
             const src = event.target.dataset.src;
+            const songTitle = event.target.textContent;
             const playingRow = document.querySelector('li.playing');
             if (playingRow) playingRow.classList.remove('playing');
             event.target.closest('li').classList.add('playing');
-            musicPlayer.src = src;
-            musicPlayer.play();
+            window.globalAudioPlayer.play(src, songTitle);
         }
         
         // 삭제 버튼 클릭
@@ -343,21 +378,21 @@ async function fetchAndRenderPlaylists() {
         // 재생 버튼 클릭
         if (e.target.matches('.btn-play')) {
             const src = e.target.dataset.src;
+            const songTitle = e.target.closest('li').querySelector('.song-title').textContent;
             const playingRow = document.querySelector('li.playing');
             if (playingRow) playingRow.classList.remove('playing');
             e.target.closest('li').classList.add('playing');
-            musicPlayer.src = src;
-            musicPlayer.play();
+            window.globalAudioPlayer.play(src, songTitle);
         }
         
         // 제목 클릭 (재생)
         if (e.target.matches('.song-title')) {
             const src = e.target.dataset.src;
+            const songTitle = e.target.textContent;
             const playingRow = document.querySelector('li.playing');
             if (playingRow) playingRow.classList.remove('playing');
             e.target.closest('li').classList.add('playing');
-            musicPlayer.src = src;
-            musicPlayer.play();
+            window.globalAudioPlayer.play(src, songTitle);
         }
         
         // 노래 추가 버튼 클릭
@@ -595,8 +630,7 @@ async function fetchAndRenderPlaylists() {
         }
         
         // 음악 재생
-        musicPlayer.src = song.src;
-        musicPlayer.play();
+        window.globalAudioPlayer.play(song.src, song.title);
     }
     
     /** 다음 노래 재생 */
@@ -622,10 +656,29 @@ async function fetchAndRenderPlaylists() {
         // 사용자 인증 상태 확인
         await checkAuthStatus();
         
+        // 볼륨 컨트롤 초기화
+        initializeVolumeControl();
+        
         const playlists = await fetchAndRenderPlaylists();
 
         if (playlists && playlists.length > 0) {
-            // 플레이리스트가 있으면 첫 번째 항목을 자동으로 선택
+            // URL 파라미터에서 플레이리스트 ID 확인
+            const urlParams = new URLSearchParams(window.location.search);
+            const playlistIdFromUrl = urlParams.get('id');
+            
+            if (playlistIdFromUrl) {
+                // URL에서 전달된 플레이리스트 ID로 해당 플레이리스트 찾기
+                const targetPlaylist = playlists.find(p => p.id == playlistIdFromUrl);
+                if (targetPlaylist) {
+                    console.log('URL에서 전달된 플레이리스트 선택:', targetPlaylist.name);
+                    selectPlaylist(targetPlaylist.id);
+                    return;
+                } else {
+                    console.log('URL에서 전달된 플레이리스트 ID를 찾을 수 없음:', playlistIdFromUrl);
+                }
+            }
+            
+            // URL 파라미터가 없거나 해당 플레이리스트를 찾을 수 없으면 첫 번째 항목을 자동으로 선택
             await selectPlaylist(playlists[0].id);
         } else {
             // 플레이리스트가 없으면 안내 메시지 표시
@@ -635,13 +688,24 @@ async function fetchAndRenderPlaylists() {
         }
     }
 
-    // 음악 플레이어 이벤트 리스너
-    musicPlayer.addEventListener('ended', () => {
-        if (isPlayingAll) {
-            // 전체 재생 모드에서 현재 노래가 끝나면 다음 노래 재생
-            playNextSong();
+    // 음악 플레이어 이벤트 리스너 (전역 오디오 플레이어 사용)
+    // 전역 오디오 플레이어가 초기화될 때까지 대기
+    function setupAudioPlayerEventListener() {
+        if (window.globalAudioPlayer && window.globalAudioPlayer.audio) {
+            window.globalAudioPlayer.audio.addEventListener('ended', () => {
+                if (isPlayingAll) {
+                    // 전체 재생 모드에서 현재 노래가 끝나면 다음 노래 재생
+                    playNextSong();
+                }
+            });
+            console.log('플레이리스트 페이지: 오디오 플레이어 이벤트 리스너 설정 완료');
+        } else {
+            // 전역 오디오 플레이어가 아직 초기화되지 않았으면 잠시 후 다시 시도
+            setTimeout(setupAudioPlayerEventListener, 100);
         }
-    });
+    }
+    
+    setupAudioPlayerEventListener();
     
     // 키보드 단축키 (선택사항)
     document.addEventListener('keydown', (e) => {
@@ -664,3 +728,58 @@ async function fetchAndRenderPlaylists() {
 
     init(); // 페이지 로딩 시 메인 함수 실행
 });
+
+    // 볼륨 컨트롤 초기화
+    function initializeVolumeControl() {
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeDisplay = document.getElementById('volume-display');
+        
+        if (!volumeSlider || !volumeDisplay) return;
+        
+        // 전역 오디오 플레이어에서 볼륨 설정 불러오기
+        const currentVolume = window.globalAudioPlayer.volume;
+        volumeSlider.value = currentVolume * 100;
+        volumeDisplay.textContent = Math.round(currentVolume * 100) + '%';
+        updateVolumeIcon(currentVolume);
+        
+        // 볼륨 슬라이더 이벤트 리스너
+        volumeSlider.addEventListener('input', (e) => {
+            const volume = e.target.value / 100;
+            window.globalAudioPlayer.setVolume(volume);
+            volumeDisplay.textContent = e.target.value + '%';
+            updateVolumeIcon(volume);
+        });
+        
+        // 키보드 단축키 (위/아래 화살표)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                const currentVolume = parseFloat(volumeSlider.value);
+                const newVolume = e.key === 'ArrowUp' 
+                    ? Math.min(100, currentVolume + 5)
+                    : Math.max(0, currentVolume - 5);
+                
+                volumeSlider.value = newVolume;
+                const volume = newVolume / 100;
+                window.globalAudioPlayer.setVolume(volume);
+                volumeDisplay.textContent = newVolume + '%';
+                updateVolumeIcon(volume);
+            }
+        });
+    }
+
+// 볼륨 아이콘 업데이트
+function updateVolumeIcon(volume) {
+    const volumeIcon = document.querySelector('.volume-icon');
+    if (!volumeIcon) return;
+    
+    if (volume === 0) {
+        volumeIcon.textContent = '🔇';
+    } else if (volume < 0.3) {
+        volumeIcon.textContent = '🔈';
+    } else if (volume < 0.7) {
+        volumeIcon.textContent = '🔉';
+    } else {
+        volumeIcon.textContent = '🔊';
+    }
+}

@@ -35,6 +35,8 @@ const usernameSpan = document.getElementById('username');
 const logoutBtn = document.getElementById('logout-btn');
 const loginLink = document.getElementById('login-link');
 const bottomAdminLink = document.getElementById('bottom-admin-link');
+const volumeSlider = document.getElementById('volume-slider');
+const volumeDisplay = document.getElementById('volume-display');
 
 // 초기화
 document.addEventListener('DOMContentLoaded', async () => {
@@ -48,6 +50,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // 이벤트 리스너 설정
     setupEventListeners();
+    
+    // 볼륨 컨트롤 초기화
+    initializeVolumeControl();
     
     console.log('새로운 메인페이지 초기화 완료');
 });
@@ -474,24 +479,24 @@ function renderMySongs(songs) {
 document.addEventListener('click', async (event) => {
         const target = event.target;
     
-    // 재생 버튼
+        // 재생 버튼
         if (target.matches('.btn-play')) {
             const src = target.dataset.src;
+            const songTitle = target.closest('tr').querySelector('.song-title').textContent;
             const playingRow = document.querySelector('tr.playing');
             if (playingRow) playingRow.classList.remove('playing');
             target.closest('tr').classList.add('playing');
-            player.src = src;
-            player.play();
+            window.globalAudioPlayer.play(src, songTitle);
         }
     
     // 제목 클릭 (재생)
     if (target.matches('.song-title')) {
         const src = target.dataset.src;
+        const songTitle = target.textContent;
         const playingRow = document.querySelector('tr.playing');
         if (playingRow) playingRow.classList.remove('playing');
         target.closest('tr').classList.add('playing');
-        player.src = src;
-        player.play();
+        window.globalAudioPlayer.play(src, songTitle);
     }
     
     // 가사 버튼
@@ -650,6 +655,11 @@ async function logout() {
         });
         
         if (response.ok) {
+            // 음악 정지
+            if (window.globalAudioPlayer) {
+                window.globalAudioPlayer.stopOnLogout();
+            }
+            
             alert('로그아웃되었습니다.');
             window.location.reload();
         } else {
@@ -712,5 +722,57 @@ async function createPlaylistAndAddSong(playlistName, songId) {
         console.error('플레이리스트 생성 및 노래 추가 오류:', error);
         alert('플레이리스트 생성 중 오류가 발생했습니다.');
         return false;
+    }
+}
+
+// 볼륨 컨트롤 초기화
+function initializeVolumeControl() {
+    if (!volumeSlider || !volumeDisplay) return;
+    
+    // 전역 오디오 플레이어에서 볼륨 설정 불러오기
+    const currentVolume = window.globalAudioPlayer.volume;
+    volumeSlider.value = currentVolume * 100;
+    volumeDisplay.textContent = Math.round(currentVolume * 100) + '%';
+    updateVolumeIcon(currentVolume);
+    
+    // 볼륨 슬라이더 이벤트 리스너
+    volumeSlider.addEventListener('input', (e) => {
+        const volume = e.target.value / 100;
+        window.globalAudioPlayer.setVolume(volume);
+        volumeDisplay.textContent = e.target.value + '%';
+        updateVolumeIcon(volume);
+    });
+    
+    // 키보드 단축키 (위/아래 화살표)
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            const currentVolume = parseFloat(volumeSlider.value);
+            const newVolume = e.key === 'ArrowUp' 
+                ? Math.min(100, currentVolume + 5)
+                : Math.max(0, currentVolume - 5);
+            
+            volumeSlider.value = newVolume;
+            const volume = newVolume / 100;
+            window.globalAudioPlayer.setVolume(volume);
+            volumeDisplay.textContent = newVolume + '%';
+            updateVolumeIcon(volume);
+        }
+    });
+}
+
+// 볼륨 아이콘 업데이트
+function updateVolumeIcon(volume) {
+    const volumeIcon = document.querySelector('.volume-icon');
+    if (!volumeIcon) return;
+    
+    if (volume === 0) {
+        volumeIcon.textContent = '🔇';
+    } else if (volume < 0.3) {
+        volumeIcon.textContent = '🔈';
+    } else if (volume < 0.7) {
+        volumeIcon.textContent = '🔉';
+    } else {
+        volumeIcon.textContent = '🔊';
     }
 }

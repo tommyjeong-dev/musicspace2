@@ -208,9 +208,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 목록 내 클릭 이벤트 (수정/삭제)
+        // 목록 내 클릭 이벤트 (재생/수정/삭제)
         songListElement.addEventListener('click', (event) => {
             const target = event.target;
+            
+            // 재생 버튼
+            if (target.matches('.btn-play')) {
+                const src = target.dataset.src;
+                const songTitle = target.closest('li').querySelector('.song-title').textContent;
+                const playingRow = document.querySelector('li.playing');
+                if (playingRow) playingRow.classList.remove('playing');
+                target.closest('li').classList.add('playing');
+                window.globalAudioPlayer.play(src, songTitle);
+            }
+            
             if (target.matches('.btn-edit')) {
                 const songId = target.dataset.songId || target.dataset.id;
                 const isAdmin = target.dataset.isAdmin === 'true';
@@ -249,22 +260,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 console.log('로그인 상태:', data.user.username, '관리자:', data.user.isAdmin);
                 
+                // 사용자 권한 정보를 body에 설정
+                document.body.dataset.isAdmin = data.user.isAdmin.toString();
+                
                 // 로그인된 상태 - 상단 사용자 정보 영역 표시
                 document.getElementById('user-info').style.display = 'flex';
                 document.getElementById('username').textContent = data.user.username;
                 document.getElementById('login-link').style.display = 'none';
                 
+                // 관리자 전용 버튼들 표시/숨김
+                const adminOnlyButtons = document.querySelectorAll('.admin-only');
+                adminOnlyButtons.forEach(button => {
+                    button.style.display = data.user.isAdmin ? 'inline-block' : 'none';
+                });
+                
             } else {
                 console.log('로그인되지 않은 상태');
+                
+                // 사용자 권한 정보를 body에 설정
+                document.body.dataset.isAdmin = 'false';
                 
                 // 로그인되지 않은 상태 - 상단 사용자 정보 영역 숨김
                 document.getElementById('user-info').style.display = 'none';
                 document.getElementById('login-link').style.display = 'inline-block';
+                
+                // 관리자 전용 버튼들 숨김
+                const adminOnlyButtons = document.querySelectorAll('.admin-only');
+                adminOnlyButtons.forEach(button => {
+                    button.style.display = 'none';
+                });
             }
         } catch (error) {
             console.error('인증 상태 확인 오류:', error);
+            document.body.dataset.isAdmin = 'false';
             document.getElementById('user-info').style.display = 'none';
             document.getElementById('login-link').style.display = 'inline-block';
+            
+            // 관리자 전용 버튼들 숨김
+            const adminOnlyButtons = document.querySelectorAll('.admin-only');
+            adminOnlyButtons.forEach(button => {
+                button.style.display = 'none';
+            });
         }
     }
 
@@ -396,6 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div class="song-actions">
+                        <button class="btn-play" data-src="${song.src}">재생</button>
                         <button class="btn-edit" data-song-id="${song.id}" data-is-admin="true">수정</button>
                         <button class="btn-delete" data-song-id="${song.id}" data-is-admin="true">삭제</button>
                     </div>
@@ -445,8 +482,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            // 사용자 권한에 따라 다른 API 엔드포인트 사용
+            const isAdmin = document.body.dataset.isAdmin === 'true';
+            const endpoint = isAdmin ? '/admin' : '';
+            
             const deletePromises = Array.from(selectedSongs).map(songId => 
-                fetch(`/api/songs/${songId}/admin`, {
+                fetch(`/api/songs/${songId}${endpoint}`, {
                     method: 'DELETE',
                     credentials: 'include'
                 })
@@ -480,8 +521,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            // 사용자 권한에 따라 다른 API 엔드포인트 사용
+            const isAdmin = document.body.dataset.isAdmin === 'true';
+            const endpoint = isAdmin ? '/admin' : '';
+            
             const updatePromises = Array.from(selectedSongs).map(songId => 
-                fetch(`/api/songs/${songId}/admin`, {
+                fetch(`/api/songs/${songId}${endpoint}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
